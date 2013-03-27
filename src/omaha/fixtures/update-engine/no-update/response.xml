@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response" protocol="3.0">
+<daystart elapsed_seconds="49051"/>
+<app appid="{87efface-864d-49a5-9bb3-4b050a7c227a}" status="ok">
+<ping status="ok"/>
+<updatecheck status="noupdate"/>
+</app>
