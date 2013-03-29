@@ -40,13 +40,15 @@ func (r *Request) AddApp(a *App) {
 type App struct {
 	XMLName xml.Name `xml:"app"`
 	UpdateCheck *UpdateCheck `xml:"updatecheck"`
-	Ping *Ping
+	Event *Event `xml:"event"`
+	Ping *Ping `xml:"ping"`
 	Id string `xml:"appid,attr,omitempty"`
 	Version string `xml:"version,attr,omitempty"`
 	NextVersion string `xml:"nextversion,attr,omitempty"`
 	Lang string `xml:"lang,attr,omitempty"`
 	Client string `xml:"client,attr,omitempty"`
 	InstallAge string `xml:"installage,attr,omitempty"`
+	FromTrack string `xml:"from_track,attr,omitempty"`
 }
 
 func NewApp(id string, version string) *App {
@@ -92,8 +94,8 @@ func (a *App) AddPing() {
 
 type Event struct {
 	XMLName xml.Name `xml:"event"`
-	EventType string `xml:"eventtype,attr,omitempty"`
-	EventResult string `xml:"eventresult,attr,omitempty"`
+	Type string `xml:"eventtype,attr,omitempty"`
+	Result string `xml:"eventresult,attr,omitempty"`
 	PreviousVersion string `xml:"previousversion,attr,omitempty"`
 }
 

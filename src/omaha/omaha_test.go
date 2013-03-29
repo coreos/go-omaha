@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func TestOmahaUpdateCheck(t *testing.T) {
+func TestOmahaRequestUpdateCheck(t *testing.T) {
 	file, err := os.Open("fixtures/update-engine/update/request.xml")
 	if err != nil {
 		t.Error(err)
@@ -30,6 +30,18 @@ func TestOmahaUpdateCheck(t *testing.T) {
 
 	if v.Apps[0].UpdateCheck == nil {
 		t.Error("Expected an UpdateCheck")
+	}
+
+	if v.Apps[0].Version != "ForcedUpdate" {
+		t.Error("Verison is ForcedUpdate")
+	}
+
+	if v.Apps[0].FromTrack != "developer-build" {
+		t.Error("developer-build")
+	}
+
+	if v.Apps[0].Event.Type != "3" {
+		t.Error("developer-build")
 	}
 }
 
