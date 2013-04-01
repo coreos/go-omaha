@@ -1,10 +1,9 @@
 /*
-   Package that implements the Google omaha protocol.
+   Implements the Google omaha protocol.
 
    Omaha is a request/response protocol using XML. Requests are made by
    clients and responses are given by the Omaha server.
    http://code.google.com/p/omaha/wiki/ServerProtocol
-   The 
 */
 package omaha
 
