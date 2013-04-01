@@ -1,11 +1,11 @@
 package omaha
 
 import (
-	"testing"
-	"fmt"
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"testing"
 )
 
 func TestOmahaRequestUpdateCheck(t *testing.T) {
@@ -45,13 +45,57 @@ func TestOmahaRequestUpdateCheck(t *testing.T) {
 	}
 }
 
+func ExampleOmaha_NewResponse() {
+	response := NewResponse("unit-test")
+	app := response.AddApp("{52F1B9BC-D31A-4D86-9276-CBC256AADF9A}")
+	app.Status = "ok"
+	p := app.AddPing()
+	p.Status = "ok"
+	u := app.AddUpdateCheck()
+	u.Status = "ok"
+	app.AddUrl("http://localhost/updates")
+	m := app.AddManifest("9999.0.0")
+	m.AddPackage("+LXvjiaPkeYDLHoNKlf9qbJwvnk=", "update.gz", "67546213", true)
+	a := m.AddAction("postinstall")
+	a.ChromeOSVersion = "9999.0.0"
+	a.sha256 = "0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg="
+	a.NeedsAdmin = false
+	a.IsDelta = true
+
+	if raw, err := xml.MarshalIndent(response, "", " "); err != nil {
+		fmt.Println(err)
+		return
+	} else {
+		fmt.Printf("%s%s\n", xml.Header, raw)
+	}
+
+	// Output:
+	// <?xml version="1.0" encoding="UTF-8"?>
+	//
+	// <response protocol="3.0" server="unit-test">
+	//  <daystart elapsed_seconds="0"></daystart>
+	//  <app appid="{52F1B9BC-D31A-4D86-9276-CBC256AADF9A}" status="ok">
+	//   <ping status="ok"></ping>
+	//   <updatecheck status="ok"></updatecheck>
+	//   <urls>
+	//    <url codebase="http://localhost/updates"></url>
+	//   </urls>
+	//   <manifest version="9999.0.0">
+	//    <packages>
+	//     <package hash="+LXvjiaPkeYDLHoNKlf9qbJwvnk=" name="update.gz" size="67546213" required="true"></package>
+	//    </packages>
+	//    <actions>
+	//     <action event="postinstall" ChromeOSVersion="" needsadmin="false" IsDelta="false"></action>
+	//    </actions>
+	//   </manifest>
+	//  </app>
+	// </response>
+}
+
 func ExampleOmaha_NewRequest() {
-	os := NewOs("linux", "3.0", "", "x64")
-
-	app := NewApp("{27BD862E-8AE8-4886-A055-F7F1A6460627}", "1.0.0.0")
+	request := NewRequest("Indy", "Chrome OS", "ForcedUpdate_x86_64", "")
+	app := request.AddApp("{27BD862E-8AE8-4886-A055-F7F1A6460627}", "1.0.0.0")
 	app.AddUpdateCheck()
-
-	request := NewRequest(os, app)
 
 	if raw, err := xml.MarshalIndent(request, "", " "); err != nil {
 		fmt.Println(err)
@@ -63,10 +107,10 @@ func ExampleOmaha_NewRequest() {
 	// Output:
 	// <?xml version="1.0" encoding="UTF-8"?>
 	//
-	// <Request protocol="3.0">
-	//  <os platform="linux" version="3.0" arch="x64"></os>
+	// <request protocol="3.0">
+	//  <os platform="Chrome OS" version="Indy" sp="ForcedUpdate_x86_64"></os>
 	//  <app appid="{27BD862E-8AE8-4886-A055-F7F1A6460627}" version="1.0.0.0">
 	//   <updatecheck></updatecheck>
 	//  </app>
-	// </Request>
+	// </request>
 }
