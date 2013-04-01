@@ -30,10 +30,7 @@ type Request struct {
 func NewRequest(version string, platform string, sp string, arch string) *Request {
 	r := new(Request)
 	r.Protocol = "3.0"
-	r.Os.Version = version
-	r.Os.Platform = platform
-	r.Os.Sp = sp
-	r.Os.Arch = arch
+	r.Os = Os{Version: version, Platform: platform, Sp: sp, Arch: arch}
 	return r
 }
 
@@ -138,11 +135,7 @@ type Os struct {
 }
 
 func NewOs(platform string, version string, sp string, arch string) *Os {
-	o := new(Os)
-	o.Version = version
-	o.Platform = platform
-	o.Sp = sp
-	o.Arch = arch
+	o := &Os{Version: version, Platform: platform, Sp: sp, Arch: arch}
 	return o
 }
 
