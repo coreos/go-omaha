@@ -58,7 +58,7 @@ func ExampleOmaha_NewResponse() {
 	m.AddPackage("+LXvjiaPkeYDLHoNKlf9qbJwvnk=", "update.gz", "67546213", true)
 	a := m.AddAction("postinstall")
 	a.ChromeOSVersion = "9999.0.0"
-	a.sha256 = "0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg="
+	a.Sha256 = "0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg="
 	a.NeedsAdmin = false
 	a.IsDelta = true
 
@@ -85,7 +85,7 @@ func ExampleOmaha_NewResponse() {
 	//     <package hash="+LXvjiaPkeYDLHoNKlf9qbJwvnk=" name="update.gz" size="67546213" required="true"></package>
 	//    </packages>
 	//    <actions>
-	//     <action event="postinstall" ChromeOSVersion="" needsadmin="false" IsDelta="false"></action>
+	//     <action event="postinstall" ChromeOSVersion="9999.0.0" sha256="0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg=" needsadmin="false" IsDelta="true"></action>
 	//    </actions>
 	//   </manifest>
 	//  </app>

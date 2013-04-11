@@ -190,7 +190,7 @@ type Action struct {
 	XMLName         xml.Name `xml:"action"`
 	Event           string   `xml:"event,attr"`
 	ChromeOSVersion string   `xml:"ChromeOSVersion,attr"`
-	sha256          string   `xml:"sha256,attr"`
+	Sha256          string   `xml:"sha256,attr"`
 	NeedsAdmin      bool     `xml:"needsadmin,attr"`
 	IsDelta         bool     `xml:"IsDelta,attr"`
 }
