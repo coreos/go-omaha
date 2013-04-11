@@ -183,7 +183,7 @@ func (m *Manifest) AddPackage(hash string, name string, size string, required bo
 
 type Actions struct {
 	XMLName xml.Name `xml:"actions"`
-	Actions []Action `xml:"action"`
+	Actions []*Action `xml:"action"`
 }
 
 type Action struct {
@@ -197,7 +197,7 @@ type Action struct {
 
 func (m *Manifest) AddAction(event string) *Action {
 	a := &Action{Event: event}
-	m.Actions.Actions = append(m.Actions.Actions, *a)
+	m.Actions.Actions = append(m.Actions.Actions, a)
 	return a
 }
 
