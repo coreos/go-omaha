@@ -70,8 +70,6 @@ type App struct {
 	XMLName     xml.Name     `xml:"app"`
 	Ping        *Ping        `xml:"ping"`
 	UpdateCheck *UpdateCheck `xml:"updatecheck"`
-	Urls        *Urls        `xml:"urls"`
-	Manifest    *Manifest    `xml:"manifest"`
 	Event       *Event       `xml:"event"`
 	Id          string       `xml:"appid,attr,omitempty"`
 	Version     string       `xml:"version,attr,omitempty"`
@@ -98,25 +96,27 @@ func (a *App) AddPing() *Ping {
 	return a.Ping
 }
 
-func (a *App) AddUrl(codebase string) *Url {
-	if a.Urls == nil {
-		a.Urls = new(Urls)
-	}
-	u := new(Url)
-	u.CodeBase = codebase
-	a.Urls.Urls = append(a.Urls.Urls, *u)
-	return u
-}
-
-func (a *App) AddManifest(version string) *Manifest {
-	a.Manifest = &Manifest{Version: version}
-	return a.Manifest
-}
-
 type UpdateCheck struct {
 	XMLName             xml.Name `xml:"updatecheck"`
+	Urls        *Urls        `xml:"urls"`
+	Manifest    *Manifest    `xml:"manifest"`
 	TargetVersionPrefix string   `xml:"targetversionprefix,attr,omitempty"`
 	Status              string   `xml:"status,attr,omitempty"`
+}
+
+func (u *UpdateCheck) AddUrl(codebase string) *Url {
+	if u.Urls == nil {
+		u.Urls = new(Urls)
+	}
+	url := new(Url)
+	url.CodeBase = codebase
+	u.Urls.Urls = append(u.Urls.Urls, *url)
+	return url
+}
+
+func (u *UpdateCheck) AddManifest(version string) *Manifest {
+	u.Manifest = &Manifest{Version: version}
+	return u.Manifest
 }
 
 type Ping struct {

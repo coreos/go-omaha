@@ -53,8 +53,8 @@ func ExampleOmaha_NewResponse() {
 	p.Status = "ok"
 	u := app.AddUpdateCheck()
 	u.Status = "ok"
-	app.AddUrl("http://localhost/updates")
-	m := app.AddManifest("9999.0.0")
+	u.AddUrl("http://localhost/updates")
+	m := u.AddManifest("9999.0.0")
 	m.AddPackage("+LXvjiaPkeYDLHoNKlf9qbJwvnk=", "update.gz", "67546213", true)
 	a := m.AddAction("postinstall")
 	a.ChromeOSVersion = "9999.0.0"
@@ -76,18 +76,19 @@ func ExampleOmaha_NewResponse() {
 	//  <daystart elapsed_seconds="0"></daystart>
 	//  <app appid="{52F1B9BC-D31A-4D86-9276-CBC256AADF9A}" status="ok">
 	//   <ping status="ok"></ping>
-	//   <updatecheck status="ok"></updatecheck>
-	//   <urls>
-	//    <url codebase="http://localhost/updates"></url>
-	//   </urls>
-	//   <manifest version="9999.0.0">
-	//    <packages>
-	//     <package hash="+LXvjiaPkeYDLHoNKlf9qbJwvnk=" name="update.gz" size="67546213" required="true"></package>
-	//    </packages>
-	//    <actions>
-	//     <action event="postinstall" ChromeOSVersion="9999.0.0" sha256="0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg=" needsadmin="false" IsDelta="true"></action>
-	//    </actions>
-	//   </manifest>
+	//   <updatecheck status="ok">
+	//    <urls>
+	//     <url codebase="http://localhost/updates"></url>
+	//    </urls>
+	//    <manifest version="9999.0.0">
+	//     <packages>
+	//      <package hash="+LXvjiaPkeYDLHoNKlf9qbJwvnk=" name="update.gz" size="67546213" required="true"></package>
+	//     </packages>
+	//     <actions>
+	//      <action event="postinstall" ChromeOSVersion="9999.0.0" sha256="0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg=" needsadmin="false" IsDelta="true"></action>
+	//     </actions>
+	//    </manifest>
+	//   </updatecheck>
 	//  </app>
 	// </response>
 }
