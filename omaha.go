@@ -70,7 +70,7 @@ type App struct {
 	XMLName     xml.Name     `xml:"app"`
 	Ping        *Ping        `xml:"ping"`
 	UpdateCheck *UpdateCheck `xml:"updatecheck"`
-	Event       *Event       `xml:"event"`
+	Event       *[]Event       `xml:"event"`
 	Id          string       `xml:"appid,attr,omitempty"`
 	Version     string       `xml:"version,attr,omitempty"`
 	NextVersion string       `xml:"nextversion,attr,omitempty"`
