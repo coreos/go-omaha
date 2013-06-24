@@ -9,7 +9,7 @@ import (
 )
 
 func TestOmahaRequestUpdateCheck(t *testing.T) {
-	file, err := os.Open("fixtures/update-engine/update/request.xml")
+	file, err := os.Open("../fixtures/update-engine/update/request.xml")
 	if err != nil {
 		t.Error(err)
 	}
@@ -71,7 +71,6 @@ func ExampleOmaha_NewResponse() {
 
 	// Output:
 	// <?xml version="1.0" encoding="UTF-8"?>
-	//
 	// <response protocol="3.0" server="unit-test">
 	//  <daystart elapsed_seconds="0"></daystart>
 	//  <app appid="{52F1B9BC-D31A-4D86-9276-CBC256AADF9A}" status="ok">
@@ -107,7 +106,6 @@ func ExampleOmaha_NewRequest() {
 
 	// Output:
 	// <?xml version="1.0" encoding="UTF-8"?>
-	//
 	// <request protocol="3.0">
 	//  <os platform="Chrome OS" version="Indy" sp="ForcedUpdate_x86_64"></os>
 	//  <app appid="{27BD862E-8AE8-4886-A055-F7F1A6460627}" version="1.0.0.0">
