@@ -14,7 +14,7 @@ import (
 type Request struct {
 	XMLName        xml.Name `xml:"request"`
 	Os             Os       `xml:"os"`
-	Apps           []*App   `xml:"app"`
+	Apps           []App   `xml:"app"`
 	Protocol       string   `xml:"protocol,attr"`
 	Version        string   `xml:"version,attr,omitempty"`
 	IsMachine      string   `xml:"ismachine,attr,omitempty"`
@@ -36,7 +36,7 @@ func NewRequest(version string, platform string, sp string, arch string) *Reques
 func (r *Request) AddApp(id string, version string) *App {
 	a := NewApp(id)
 	a.Version = version
-	r.Apps = append(r.Apps, a)
+	r.Apps = append(r.Apps, *a)
 	return a
 }
 
@@ -45,7 +45,7 @@ func (r *Request) AddApp(id string, version string) *App {
 type Response struct {
 	XMLName  xml.Name `xml:"response"`
 	DayStart DayStart `xml:"daystart"`
-	Apps     []*App   `xml:"app"`
+	Apps     []App   `xml:"app"`
 	Protocol string   `xml:"protocol,attr"`
 	Server   string   `xml:"server,attr"`
 }
@@ -62,15 +62,15 @@ type DayStart struct {
 
 func (r *Response) AddApp(id string) *App {
 	a := NewApp(id)
-	r.Apps = append(r.Apps, a)
+	r.Apps = append(r.Apps, *a)
 	return a
 }
 
 type App struct {
 	XMLName     xml.Name     `xml:"app"`
-	Ping        *Ping        `xml:"ping"`
-	UpdateCheck *UpdateCheck `xml:"updatecheck"`
-	Event       *[]Event       `xml:"event"`
+	Ping        Ping        `xml:"ping"`
+	UpdateCheck UpdateCheck `xml:"updatecheck"`
+	Events      []Event       `xml:"event"`
 	Id          string       `xml:"appid,attr,omitempty"`
 	Version     string       `xml:"version,attr,omitempty"`
 	NextVersion string       `xml:"nextversion,attr,omitempty"`
@@ -87,26 +87,26 @@ func NewApp(id string) *App {
 }
 
 func (a *App) AddUpdateCheck() *UpdateCheck {
-	a.UpdateCheck = new(UpdateCheck)
-	return a.UpdateCheck
+	a.UpdateCheck = *new(UpdateCheck)
+	return &a.UpdateCheck
 }
 
 func (a *App) AddPing() *Ping {
-	a.Ping = new(Ping)
-	return a.Ping
+	a.Ping = *new(Ping)
+	return &a.Ping
 }
 
 type UpdateCheck struct {
 	XMLName             xml.Name `xml:"updatecheck"`
-	Urls        *Urls        `xml:"urls"`
-	Manifest    *Manifest    `xml:"manifest"`
+	Urls        Urls        `xml:"urls"`
+	Manifest    Manifest    `xml:"manifest"`
 	TargetVersionPrefix string   `xml:"targetversionprefix,attr,omitempty"`
 	Status              string   `xml:"status,attr,omitempty"`
 }
 
 func (u *UpdateCheck) AddUrl(codebase string) *Url {
-	if u.Urls == nil {
-		u.Urls = new(Urls)
+	if len(u.Urls.Urls) == 0 {
+		u.Urls = *new(Urls)
 	}
 	url := new(Url)
 	url.CodeBase = codebase
@@ -115,8 +115,8 @@ func (u *UpdateCheck) AddUrl(codebase string) *Url {
 }
 
 func (u *UpdateCheck) AddManifest(version string) *Manifest {
-	u.Manifest = &Manifest{Version: version}
-	return u.Manifest
+	u.Manifest = Manifest{Version: version}
+	return &u.Manifest
 }
 
 type Ping struct {
