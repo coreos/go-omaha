@@ -70,7 +70,7 @@ type App struct {
 	XMLName     xml.Name     `xml:"app"`
 	Ping        *Ping        `xml:"ping"`
 	UpdateCheck *UpdateCheck `xml:"updatecheck"`
-	Event       *Event       `xml:"event"`
+	Events      []*Event     `xml:"event"`
 	Id          string       `xml:"appid,attr,omitempty"`
 	Version     string       `xml:"version,attr,omitempty"`
 	NextVersion string       `xml:"nextversion,attr,omitempty"`
@@ -96,12 +96,18 @@ func (a *App) AddPing() *Ping {
 	return a.Ping
 }
 
+func (a *App) AddEvent() *Event {
+	event := new(Event)
+	a.Events = append(a.Events, event)
+	return event
+}
+
 type UpdateCheck struct {
-	XMLName             xml.Name `xml:"updatecheck"`
-	Urls        *Urls        `xml:"urls"`
-	Manifest    *Manifest    `xml:"manifest"`
-	TargetVersionPrefix string   `xml:"targetversionprefix,attr,omitempty"`
-	Status              string   `xml:"status,attr,omitempty"`
+	XMLName             xml.Name  `xml:"updatecheck"`
+	Urls                *Urls     `xml:"urls"`
+	Manifest            *Manifest `xml:"manifest"`
+	TargetVersionPrefix string    `xml:"targetversionprefix,attr,omitempty"`
+	Status              string    `xml:"status,attr,omitempty"`
 }
 
 func (u *UpdateCheck) AddUrl(codebase string) *Url {
@@ -182,7 +188,7 @@ func (m *Manifest) AddPackage(hash string, name string, size string, required bo
 }
 
 type Actions struct {
-	XMLName xml.Name `xml:"actions"`
+	XMLName xml.Name  `xml:"actions"`
 	Actions []*Action `xml:"action"`
 }
 

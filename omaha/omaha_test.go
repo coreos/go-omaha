@@ -40,7 +40,7 @@ func TestOmahaRequestUpdateCheck(t *testing.T) {
 		t.Error("developer-build")
 	}
 
-	if v.Apps[0].Event.Type != "3" {
+	if v.Apps[0].Events[0].Type != "3" {
 		t.Error("developer-build")
 	}
 }
@@ -97,6 +97,10 @@ func ExampleOmaha_NewRequest() {
 	app := request.AddApp("{27BD862E-8AE8-4886-A055-F7F1A6460627}", "1.0.0.0")
 	app.AddUpdateCheck()
 
+	event := app.AddEvent()
+	event.Type = "1"
+	event.Result = "0"
+
 	if raw, err := xml.MarshalIndent(request, "", " "); err != nil {
 		fmt.Println(err)
 		return
@@ -110,6 +114,7 @@ func ExampleOmaha_NewRequest() {
 	//  <os platform="Chrome OS" version="Indy" sp="ForcedUpdate_x86_64"></os>
 	//  <app appid="{27BD862E-8AE8-4886-A055-F7F1A6460627}" version="1.0.0.0">
 	//   <updatecheck></updatecheck>
+	//   <event eventtype="1" eventresult="0"></event>
 	//  </app>
 	// </request>
 }
