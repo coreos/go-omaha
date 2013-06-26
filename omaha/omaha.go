@@ -195,6 +195,8 @@ type Actions struct {
 type Action struct {
 	XMLName         xml.Name `xml:"action" datastore:"-"`
 	Event           string   `xml:"event,attr"`
+
+	// Extensions added by update_engine
 	ChromeOSVersion string   `xml:"ChromeOSVersion,attr"`
 	Sha256          string   `xml:"sha256,attr"`
 	NeedsAdmin      bool     `xml:"needsadmin,attr"`
