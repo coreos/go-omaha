@@ -199,6 +199,7 @@ type Action struct {
 	Sha256          string   `xml:"sha256,attr"`
 	NeedsAdmin      bool     `xml:"needsadmin,attr"`
 	IsDelta         bool     `xml:"IsDelta,attr"`
+	DisablePayloadBackoff bool `xml:"DisablePayloadBackoff,attr,omitempty"`
 }
 
 func (m *Manifest) AddAction(event string) *Action {
