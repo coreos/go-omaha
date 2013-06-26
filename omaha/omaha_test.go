@@ -61,6 +61,7 @@ func ExampleOmaha_NewResponse() {
 	a.Sha256 = "0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg="
 	a.NeedsAdmin = false
 	a.IsDelta = true
+	a.DisablePayloadBackoff = true
 
 	if raw, err := xml.MarshalIndent(response, "", " "); err != nil {
 		fmt.Println(err)
@@ -84,7 +85,7 @@ func ExampleOmaha_NewResponse() {
 	//      <package hash="+LXvjiaPkeYDLHoNKlf9qbJwvnk=" name="update.gz" size="67546213" required="true"></package>
 	//     </packages>
 	//     <actions>
-	//      <action event="postinstall" ChromeOSVersion="9999.0.0" sha256="0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg=" needsadmin="false" IsDelta="true"></action>
+	//      <action event="postinstall" ChromeOSVersion="9999.0.0" sha256="0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg=" needsadmin="false" IsDelta="true" DisablePayloadBackoff="true"></action>
 	//     </actions>
 	//    </manifest>
 	//   </updatecheck>
