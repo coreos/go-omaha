@@ -43,7 +43,7 @@ func (r *Request) AddApp(id string, version string) *App {
 /* Response
  */
 type Response struct {
-	XMLName  xml.Name `xml:"response" datastore:"-"`
+	XMLName  xml.Name `xml:"response" datastore:"-" json:"-"`
 	DayStart DayStart `xml:"daystart"`
 	Apps     []*App   `xml:"app"`
 	Protocol string   `xml:"protocol,attr"`
@@ -67,7 +67,7 @@ func (r *Response) AddApp(id string) *App {
 }
 
 type App struct {
-	XMLName     xml.Name     `xml:"app" datastore"-"`
+	XMLName     xml.Name     `xml:"app" datastore"-" json:"-"`
 	Ping        *Ping        `xml:"ping"`
 	UpdateCheck *UpdateCheck `xml:"updatecheck"`
 	Events      []*Event     `xml:"event"`
@@ -103,7 +103,7 @@ func (a *App) AddEvent() *Event {
 }
 
 type UpdateCheck struct {
-	XMLName             xml.Name  `xml:"updatecheck" datastore:"-"`
+	XMLName             xml.Name  `xml:"updatecheck" datastore:"-" json:"-"`
 	Urls                *Urls     `xml:"urls"`
 	Manifest            *Manifest `xml:"manifest"`
 	TargetVersionPrefix string    `xml:"targetversionprefix,attr,omitempty"`
@@ -126,13 +126,13 @@ func (u *UpdateCheck) AddManifest(version string) *Manifest {
 }
 
 type Ping struct {
-	XMLName        xml.Name `xml:"ping" datastore:"-"`
+	XMLName        xml.Name `xml:"ping" datastore:"-" json:"-"`
 	LastReportDays string   `xml:"r,attr,omitempty"`
 	Status         string   `xml:"status,attr,omitempty"`
 }
 
 type Os struct {
-	XMLName  xml.Name `xml:"os" datastore:"-"`
+	XMLName  xml.Name `xml:"os" datastore:"-" json:"-"`
 	Platform string   `xml:"platform,attr,omitempty"`
 	Version  string   `xml:"version,attr,omitempty"`
 	Sp       string   `xml:"sp,attr,omitempty"`
@@ -145,36 +145,36 @@ func NewOs(platform string, version string, sp string, arch string) *Os {
 }
 
 type Event struct {
-	XMLName         xml.Name `xml:"event" datastore:"-"`
+	XMLName         xml.Name `xml:"event" datastore:"-" json:"-"`
 	Type            string   `xml:"eventtype,attr,omitempty"`
 	Result          string   `xml:"eventresult,attr,omitempty"`
 	PreviousVersion string   `xml:"previousversion,attr,omitempty"`
 }
 
 type Urls struct {
-	XMLName xml.Name `xml:"urls" datastore:"-"`
+	XMLName xml.Name `xml:"urls" datastore:"-" json:"-"`
 	Urls    []Url    `xml:"url"`
 }
 
 type Url struct {
-	XMLName  xml.Name `xml:"url" datastore:"-"`
+	XMLName  xml.Name `xml:"url" datastore:"-" json:"-"`
 	CodeBase string   `xml:"codebase,attr"`
 }
 
 type Manifest struct {
-	XMLName  xml.Name `xml:"manifest" datastore:"-"`
+	XMLName  xml.Name `xml:"manifest" datastore:"-" json:"-"`
 	Packages Packages `xml:"packages"`
 	Actions  Actions  `xml:"actions"`
 	Version  string   `xml:"version,attr"`
 }
 
 type Packages struct {
-	XMLName  xml.Name  `xml:"packages" datastore:"-"`
+	XMLName  xml.Name  `xml:"packages" datastore:"-" json:"-"`
 	Packages []Package `xml:"package"`
 }
 
 type Package struct {
-	XMLName  xml.Name `xml:"package" datastore:"-"`
+	XMLName  xml.Name `xml:"package" datastore:"-" json:"-"`
 	Hash     string   `xml:"hash,attr"`
 	Name     string   `xml:"name,attr"`
 	Size     string   `xml:"size,attr"`
@@ -188,12 +188,12 @@ func (m *Manifest) AddPackage(hash string, name string, size string, required bo
 }
 
 type Actions struct {
-	XMLName xml.Name  `xml:"actions" datastore:"-"`
+	XMLName xml.Name  `xml:"actions" datastore:"-" json:"-"`
 	Actions []*Action `xml:"action"`
 }
 
 type Action struct {
-	XMLName xml.Name `xml:"action" datastore:"-"`
+	XMLName xml.Name `xml:"action" datastore:"-" json:"-"`
 	Event   string   `xml:"event,attr"`
 
 	// Extensions added by update_engine
