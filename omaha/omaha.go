@@ -70,7 +70,7 @@ type App struct {
 	XMLName     xml.Name     `xml:"app" datastore"-" json:"-"`
 	Ping        *Ping        `xml:"ping"`
 	UpdateCheck *UpdateCheck `xml:"updatecheck"`
-	Events      []*Event     `xml:"event"`
+	Events      []*Event     `xml:"event" json:",omitempty"`
 	Id          string       `xml:"appid,attr,omitempty"`
 	Version     string       `xml:"version,attr,omitempty"`
 	NextVersion string       `xml:"nextversion,attr,omitempty"`
@@ -153,7 +153,7 @@ type Event struct {
 
 type Urls struct {
 	XMLName xml.Name `xml:"urls" datastore:"-" json:"-"`
-	Urls    []Url    `xml:"url"`
+	Urls    []Url    `xml:"url" json:",omitempty"`
 }
 
 type Url struct {
@@ -170,7 +170,7 @@ type Manifest struct {
 
 type Packages struct {
 	XMLName  xml.Name  `xml:"packages" datastore:"-" json:"-"`
-	Packages []Package `xml:"package"`
+	Packages []Package `xml:"package" json:",omitempty"`
 }
 
 type Package struct {
@@ -189,7 +189,7 @@ func (m *Manifest) AddPackage(hash string, name string, size string, required bo
 
 type Actions struct {
 	XMLName xml.Name  `xml:"actions" datastore:"-" json:"-"`
-	Actions []*Action `xml:"action"`
+	Actions []*Action `xml:"action" json:",omitempty"`
 }
 
 type Action struct {
