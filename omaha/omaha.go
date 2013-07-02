@@ -77,6 +77,7 @@ type App struct {
 	Lang        string       `xml:"lang,attr,omitempty"`
 	Client      string       `xml:"client,attr,omitempty"`
 	InstallAge  string       `xml:"installage,attr,omitempty"`
+	Track       string       `xml:"track,attr,omitempty"`
 	FromTrack   string       `xml:"from_track,attr,omitempty"`
 	Status      string       `xml:"status,attr,omitempty"`
 }

@@ -40,6 +40,10 @@ func TestOmahaRequestUpdateCheck(t *testing.T) {
 		t.Error("developer-build")
 	}
 
+	if v.Apps[0].Track != "dev-channel" {
+		t.Error("dev-channel")
+	}
+
 	if v.Apps[0].Events[0].Type != "3" {
 		t.Error("developer-build")
 	}
