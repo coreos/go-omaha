@@ -78,6 +78,7 @@ type App struct {
 	Client      string       `xml:"client,attr,omitempty"`
 	InstallAge  string       `xml:"installage,attr,omitempty"`
 	Status      string       `xml:"status,attr,omitempty"`
+    IsActive    bool         'xml:"IsActive,attr"'
 
 	// update engine extensions
 	Track       string       `xml:"track,attr,omitempty"`
