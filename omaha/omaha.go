@@ -78,11 +78,11 @@ type App struct {
 	Client      string       `xml:"client,attr,omitempty"`
 	InstallAge  string       `xml:"installage,attr,omitempty"`
 	Status      string       `xml:"status,attr,omitempty"`
-    IsActive    bool         'xml:"IsActive,attr"'
+	IsActive    bool         `xml:"-"`
 
 	// update engine extensions
-	Track       string       `xml:"track,attr,omitempty"`
-	FromTrack   string       `xml:"from_track,attr,omitempty"`
+	Track     string `xml:"track,attr,omitempty"`
+	FromTrack string `xml:"from_track,attr,omitempty"`
 }
 
 func NewApp(id string) *App {
