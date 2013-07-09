@@ -28,6 +28,10 @@ func TestOmahaRequestUpdateCheck(t *testing.T) {
 		t.Error("Expected an App Id")
 	}
 
+	if v.Apps[0].BootId != "{7D52A1CC-7066-40F0-91C7-7CB6A871BFDE}" {
+		t.Error("Expected a Boot Id")
+	}
+
 	if v.Apps[0].UpdateCheck == nil {
 		t.Error("Expected an UpdateCheck")
 	}

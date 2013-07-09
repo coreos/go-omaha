@@ -82,6 +82,9 @@ type App struct {
 	// update engine extensions
 	Track       string       `xml:"track,attr,omitempty"`
 	FromTrack   string       `xml:"from_track,attr,omitempty"`
+
+	// coreos update engine extensions
+	BootId       string       `xml:"bootid,attr,omitempty"`
 }
 
 func NewApp(id string) *App {
