@@ -80,8 +80,8 @@ type App struct {
 	Status      string       `xml:"status,attr,omitempty"`
 
 	// update engine extensions
-	Track       string       `xml:"track,attr,omitempty"`
-	FromTrack   string       `xml:"from_track,attr,omitempty"`
+	Track     string `xml:"track,attr,omitempty"`
+	FromTrack string `xml:"from_track,attr,omitempty"`
 
 	// coreos update engine extensions
 	BootId       string       `xml:"bootid,attr,omitempty"`
