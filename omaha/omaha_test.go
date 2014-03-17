@@ -36,7 +36,7 @@ func TestOmahaRequestUpdateCheck(t *testing.T) {
 		t.Error("Expected a Previous Boot Id")
 	}
 
-	if v.Apps[0].Oem != "ec3000" {
+	if v.Apps[0].OEM != "ec3000" {
 		t.Error("Expected an OEM")
 	}
 
