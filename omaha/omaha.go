@@ -157,6 +157,7 @@ type Event struct {
 	Type            string   `xml:"eventtype,attr,omitempty"`
 	Result          string   `xml:"eventresult,attr,omitempty"`
 	PreviousVersion string   `xml:"previousversion,attr,omitempty"`
+	ErrorCode       string   `xml:"errorcode,attr,omitempty"`
 }
 
 type Urls struct {
