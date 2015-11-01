@@ -3,7 +3,7 @@
 
    Omaha is a request/response protocol using XML. Requests are made by
    clients and responses are given by the Omaha server.
-   http://code.google.com/p/omaha/wiki/ServerProtocol
+   https://github.com/google/omaha/blob/wiki/ServerProtocol.md
 */
 package omaha
 
