@@ -76,7 +76,7 @@ func TestOmahaRequestUpdateCheck(t *testing.T) {
 	}
 }
 
-func ExampleOmaha_NewResponse() {
+func ExampleNewResponse() {
 	response := NewResponse("unit-test")
 	app := response.AddApp("{52F1B9BC-D31A-4D86-9276-CBC256AADF9A}")
 	app.Status = "ok"
@@ -124,7 +124,7 @@ func ExampleOmaha_NewResponse() {
 	// </response>
 }
 
-func ExampleOmaha_NewRequest() {
+func ExampleNewRequest() {
 	request := NewRequest("Indy", "Chrome OS", "ForcedUpdate_x86_64", "")
 	app := request.AddApp("{27BD862E-8AE8-4886-A055-F7F1A6460627}", "1.0.0.0")
 	app.AddUpdateCheck()
