@@ -108,9 +108,9 @@ type UpdateRequest struct {
 }
 
 type PingRequest struct {
-	Active               int `xml:"active,attr,omitempty"`
-	LastActiveReportDays int `xml:"a,attr,omitempty"`
-	LastReportDays       int `xml:"r,attr,omitempty"`
+	Active               int  `xml:"active,attr,omitempty"`
+	LastActiveReportDays *int `xml:"a,attr,omitempty"`
+	LastReportDays       int  `xml:"r,attr,omitempty"`
 }
 
 type EventRequest struct {
