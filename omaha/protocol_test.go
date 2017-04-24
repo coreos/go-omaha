@@ -108,7 +108,7 @@ func ExampleNewResponse() {
 
 	// Output:
 	// <?xml version="1.0" encoding="UTF-8"?>
-	// <response protocol="3.0" server="mantle">
+	// <response protocol="3.0" server="go-omaha">
 	//  <daystart elapsed_seconds="0"></daystart>
 	//  <app appid="{52F1B9BC-D31A-4D86-9276-CBC256AADF9A}" status="ok">
 	//   <ping status="ok"></ping>

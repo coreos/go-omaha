@@ -24,8 +24,6 @@ package omaha
 
 import (
 	"encoding/xml"
-
-	"github.com/coreos/mantle/version"
 )
 
 // Request sent by the Omaha client
@@ -49,7 +47,7 @@ type Request struct {
 func NewRequest() *Request {
 	return &Request{
 		Protocol: "3.0",
-		Version:  version.Version,
+		// TODO(marineam) set a default client Version
 		OS: &OS{
 			Platform: LocalPlatform(),
 			Arch:     LocalArch(),
@@ -135,7 +133,7 @@ type Response struct {
 func NewResponse() *Response {
 	return &Response{
 		Protocol: "3.0",
-		Server:   "mantle",
+		Server:   "go-omaha",
 		DayStart: DayStart{ElapsedSeconds: "0"},
 	}
 }
