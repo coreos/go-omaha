@@ -1,5 +1,8 @@
 language: go
-go: 1.1
+sudo: false
+go:
+ - 1.7.5
+ - 1.8.1
 
 script:
  - go test -v ./...
