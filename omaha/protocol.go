@@ -32,13 +32,13 @@ type Request struct {
 	OS            *OS           `xml:"os"`
 	Apps          []*AppRequest `xml:"app"`
 	Protocol      string        `xml:"protocol,attr"`
-	Version       string        `xml:"version,attr,omitempty"`
+	InstallSource string        `xml:"installsource,attr,omitempty"`
 	IsMachine     string        `xml:"ismachine,attr,omitempty"`
 	RequestId     string        `xml:"requestid,attr,omitempty"`
 	SessionId     string        `xml:"sessionid,attr,omitempty"`
-	UserId        string        `xml:"userid,attr,omitempty"`
-	InstallSource string        `xml:"installsource,attr,omitempty"`
 	TestSource    string        `xml:"testsource,attr,omitempty"`
+	UserId        string        `xml:"userid,attr,omitempty"`
+	Version       string        `xml:"version,attr,omitempty"`
 
 	// update engine extension, duplicates the version attribute.
 	UpdaterVersion string `xml:"updaterversion,attr,omitempty"`
@@ -67,24 +67,24 @@ type AppRequest struct {
 	UpdateCheck *UpdateRequest  `xml:"updatecheck"`
 	Events      []*EventRequest `xml:"event" json:",omitempty"`
 	Id          string          `xml:"appid,attr,omitempty"`
-	Version     string          `xml:"version,attr,omitempty"`
-	NextVersion string          `xml:"nextversion,attr,omitempty"`
-	Lang        string          `xml:"lang,attr,omitempty"`
 	Client      string          `xml:"client,attr,omitempty"`
 	InstallAge  string          `xml:"installage,attr,omitempty"`
+	Lang        string          `xml:"lang,attr,omitempty"`
+	NextVersion string          `xml:"nextversion,attr,omitempty"`
+	Version     string          `xml:"version,attr,omitempty"`
 
 	// update engine extensions
-	Track     string `xml:"track,attr,omitempty"`
-	FromTrack string `xml:"from_track,attr,omitempty"`
 	Board     string `xml:"board,attr,omitempty"`
 	DeltaOK   bool   `xml:"delta_okay,attr,omitempty"`
+	FromTrack string `xml:"from_track,attr,omitempty"`
+	Track     string `xml:"track,attr,omitempty"`
 
 	// coreos update engine extensions
+	AlephVersion string `xml:"alephversion,attr,omitempty"`
 	BootId       string `xml:"bootid,attr,omitempty"`
 	MachineID    string `xml:"machineid,attr,omitempty"`
 	OEM          string `xml:"oem,attr,omitempty"`
 	OEMVersion   string `xml:"oemversion,attr,omitempty"`
-	AlephVersion string `xml:"alephversion,attr,omitempty"`
 }
 
 func (a *AppRequest) AddUpdateCheck() *UpdateRequest {
@@ -116,9 +116,9 @@ type PingRequest struct {
 type EventRequest struct {
 	Type            EventType   `xml:"eventtype,attr"`
 	Result          EventResult `xml:"eventresult,attr"`
+	ErrorCode       string      `xml:"errorcode,attr,omitempty"`
 	NextVersion     string      `xml:"nextversion,attr,omitempty"`
 	PreviousVersion string      `xml:"previousversion,attr,omitempty"`
-	ErrorCode       string      `xml:"errorcode,attr,omitempty"`
 }
 
 // Response sent by the Omaha server
