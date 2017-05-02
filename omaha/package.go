@@ -29,12 +29,11 @@ var (
 	PackageSizeMismatchError = errors.New("package size is invalid")
 )
 
-// Package represents a single downloadable file. The Sha256 attribute
-// is not a standard part of the Omaha protocol which only uses Sha1.
+// Package represents a single downloadable file.
 type Package struct {
 	Name     string `xml:"name,attr"`
 	Sha1     string `xml:"hash,attr"`
-	Sha256   string `xml:"sha256,attr,omitempty"`
+	Sha256   string `xml:"hash_sha256,attr,omitempty"`
 	Size     uint64 `xml:"size,attr"`
 	Required bool   `xml:"required,attr"`
 }
