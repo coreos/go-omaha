@@ -92,7 +92,7 @@ func (ts *TrivialServer) AddPackage(file, name string) error {
 	if len(ts.tu.Manifest.Actions) == 0 {
 		act := ts.tu.Manifest.AddAction("postinstall")
 		act.DisablePayloadBackoff = true
-		act.Sha256 = pkg.Sha256
+		act.SHA256 = pkg.SHA256
 	}
 
 	ts.Mux.Handle(pkg_prefix+name, &trivialHandler{file})

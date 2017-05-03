@@ -26,7 +26,7 @@ import (
 
 func mkUpdateReq() (*bytes.Buffer, error) {
 	req := NewRequest()
-	app := req.AddApp(testAppId, testAppVer)
+	app := req.AddApp(testAppID, testAppVer)
 	app.AddUpdateCheck()
 
 	buf := &bytes.Buffer{}

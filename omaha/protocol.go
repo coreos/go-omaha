@@ -34,10 +34,10 @@ type Request struct {
 	Protocol      string        `xml:"protocol,attr"`
 	InstallSource string        `xml:"installsource,attr,omitempty"`
 	IsMachine     string        `xml:"ismachine,attr,omitempty"`
-	RequestId     string        `xml:"requestid,attr,omitempty"`
-	SessionId     string        `xml:"sessionid,attr,omitempty"`
+	RequestID     string        `xml:"requestid,attr,omitempty"`
+	SessionID     string        `xml:"sessionid,attr,omitempty"`
 	TestSource    string        `xml:"testsource,attr,omitempty"`
-	UserId        string        `xml:"userid,attr,omitempty"`
+	UserID        string        `xml:"userid,attr,omitempty"`
 	Version       string        `xml:"version,attr,omitempty"`
 
 	// update engine extension, duplicates the version attribute.
@@ -57,7 +57,7 @@ func NewRequest() *Request {
 }
 
 func (r *Request) AddApp(id, version string) *AppRequest {
-	a := &AppRequest{Id: id, Version: version}
+	a := &AppRequest{ID: id, Version: version}
 	r.Apps = append(r.Apps, a)
 	return a
 }
@@ -66,7 +66,7 @@ type AppRequest struct {
 	Ping        *PingRequest    `xml:"ping"`
 	UpdateCheck *UpdateRequest  `xml:"updatecheck"`
 	Events      []*EventRequest `xml:"event" json:",omitempty"`
-	Id          string          `xml:"appid,attr,omitempty"`
+	ID          string          `xml:"appid,attr,omitempty"`
 	Client      string          `xml:"client,attr,omitempty"`
 	InstallAge  string          `xml:"installage,attr,omitempty"`
 	Lang        string          `xml:"lang,attr,omitempty"`
@@ -81,7 +81,7 @@ type AppRequest struct {
 
 	// coreos update engine extensions
 	AlephVersion string `xml:"alephversion,attr,omitempty"`
-	BootId       string `xml:"bootid,attr,omitempty"`
+	BootID       string `xml:"bootid,attr,omitempty"`
 	MachineID    string `xml:"machineid,attr,omitempty"`
 	OEM          string `xml:"oem,attr,omitempty"`
 	OEMVersion   string `xml:"oemversion,attr,omitempty"`
@@ -143,7 +143,7 @@ type DayStart struct {
 }
 
 func (r *Response) AddApp(id string, status AppStatus) *AppResponse {
-	a := &AppResponse{Id: id, Status: status}
+	a := &AppResponse{ID: id, Status: status}
 	r.Apps = append(r.Apps, a)
 	return a
 }
@@ -152,7 +152,7 @@ type AppResponse struct {
 	Ping        *PingResponse    `xml:"ping"`
 	UpdateCheck *UpdateResponse  `xml:"updatecheck"`
 	Events      []*EventResponse `xml:"event" json:",omitempty"`
-	Id          string           `xml:"appid,attr,omitempty"`
+	ID          string           `xml:"appid,attr,omitempty"`
 	Status      AppStatus        `xml:"status,attr,omitempty"`
 }
 
@@ -248,7 +248,7 @@ type Action struct {
 
 	// update engine extensions for event="postinstall"
 	DisplayVersion        string `xml:"DisplayVersion,attr,omitempty"`
-	Sha256                string `xml:"sha256,attr,omitempty"`
+	SHA256                string `xml:"sha256,attr,omitempty"`
 	NeedsAdmin            bool   `xml:"needsadmin,attr,omitempty"`
 	IsDeltaPayload        bool   `xml:"IsDeltaPayload,attr,omitempty"`
 	DisablePayloadBackoff bool   `xml:"DisablePayloadBackoff,attr,omitempty"`

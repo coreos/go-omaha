@@ -24,8 +24,8 @@ import (
 func TestPackageFromPath(t *testing.T) {
 	expect := Package{
 		Name:     "null",
-		Sha1:     "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
-		Sha256:   "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+		SHA1:     "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
+		SHA256:   "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
 		Size:     0,
 		Required: false,
 	}
@@ -44,8 +44,8 @@ func TestProtocolFromReader(t *testing.T) {
 	data := strings.NewReader("testing\n")
 	expect := Package{
 		Name:     "",
-		Sha1:     "mAFznarkTsUpPU4fU9P00tQm2Rw=",
-		Sha256:   "EqYfThc/s6EcBdZHH3Ryj3YjG0pfzZZnzvOvh6OuTcI=",
+		SHA1:     "mAFznarkTsUpPU4fU9P00tQm2Rw=",
+		SHA256:   "EqYfThc/s6EcBdZHH3Ryj3YjG0pfzZZnzvOvh6OuTcI=",
 		Size:     8,
 		Required: false,
 	}
@@ -63,8 +63,8 @@ func TestProtocolFromReader(t *testing.T) {
 func TestPackageVerify(t *testing.T) {
 	p := Package{
 		Name:     "null",
-		Sha1:     "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
-		Sha256:   "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+		SHA1:     "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
+		SHA256:   "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
 		Size:     0,
 		Required: false,
 	}
@@ -74,11 +74,11 @@ func TestPackageVerify(t *testing.T) {
 	}
 }
 
-func TestPackageVerifyNoSha256(t *testing.T) {
+func TestPackageVerifyNoSHA256(t *testing.T) {
 	p := Package{
 		Name:     "null",
-		Sha1:     "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
-		Sha256:   "",
+		SHA1:     "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
+		SHA256:   "",
 		Size:     0,
 		Required: false,
 	}
@@ -91,8 +91,8 @@ func TestPackageVerifyNoSha256(t *testing.T) {
 func TestPackageVerifyBadSize(t *testing.T) {
 	p := Package{
 		Name:     "null",
-		Sha1:     "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
-		Sha256:   "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+		SHA1:     "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
+		SHA256:   "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
 		Size:     1,
 		Required: false,
 	}
@@ -107,11 +107,11 @@ func TestPackageVerifyBadSize(t *testing.T) {
 
 }
 
-func TestPackageVerifyBadSha1(t *testing.T) {
+func TestPackageVerifyBadSHA1(t *testing.T) {
 	p := Package{
 		Name:     "null",
-		Sha1:     "xxxxxxxxxxxxxxxxxxxxxxxxxxx=",
-		Sha256:   "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+		SHA1:     "xxxxxxxxxxxxxxxxxxxxxxxxxxx=",
+		SHA256:   "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
 		Size:     0,
 		Required: false,
 	}
@@ -125,11 +125,11 @@ func TestPackageVerifyBadSha1(t *testing.T) {
 	}
 }
 
-func TestPackageVerifyBadSha256(t *testing.T) {
+func TestPackageVerifyBadSHA256(t *testing.T) {
 	p := Package{
 		Name:     "null",
-		Sha1:     "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
-		Sha256:   "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=",
+		SHA1:     "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
+		SHA256:   "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=",
 		Size:     0,
 		Required: false,
 	}
