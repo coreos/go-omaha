@@ -17,10 +17,13 @@ package omaha
 import (
 	"encoding/xml"
 	"fmt"
+	"reflect"
+	"strings"
 	"testing"
 )
 
-const SampleRequest = `<?xml version="1.0" encoding="UTF-8"?>
+const (
+	sampleRequest = `<?xml version="1.0" encoding="UTF-8"?>
 <request protocol="3.0" version="ChromeOSUpdateEngine-0.1.0.0" updaterversion="ChromeOSUpdateEngine-0.1.0.0" installsource="ondemandupdate" ismachine="1">
 <os version="Indy" platform="Chrome OS" sp="ForcedUpdate_x86_64"></os>
 <app appid="{87efface-864d-49a5-9bb3-4b050a7c227a}" bootid="{7D52A1CC-7066-40F0-91C7-7CB6A871BFDE}" machineid="{8BDE4C4D-9083-4D61-B41C-3253212C0C37}" oem="ec3000" version="ForcedUpdate" track="dev-channel" from_track="developer-build" lang="en-US" board="amd64-generic" hardware_class="" delta_okay="false" >
@@ -30,10 +33,34 @@ const SampleRequest = `<?xml version="1.0" encoding="UTF-8"?>
 </app>
 </request>
 `
+	sampleResponse = `<?xml version="1.0" encoding="UTF-8"?>
+<response protocol="3.0">
+<daystart elapsed_seconds="49008"/>
+<app appid="{87efface-864d-49a5-9bb3-4b050a7c227a}" status="ok">
+<ping status="ok"/>
+<updatecheck status="ok">
+<urls>
+<url codebase="http://kam:8080/static/"/>
+</urls>
+<manifest version="9999.0.0">
+<packages>
+<package hash="+LXvjiaPkeYDLHoNKlf9qbJwvnk=" name="update.gz" size="67546213" required="true"/>
+</packages>
+<actions>
+<action event="postinstall" DisplayVersion="9999.0.0" sha256="0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg=" needsadmin="false" IsDeltaPayload="true" />
+</actions>
+</manifest>
+</updatecheck>
+</app>
+</response>
+`
+)
 
 func TestOmahaRequestUpdateCheck(t *testing.T) {
-	v := Request{}
-	xml.Unmarshal([]byte(SampleRequest), &v)
+	v, err := ParseRequest("", strings.NewReader(sampleRequest))
+	if err != nil {
+		t.Fatalf("ParseRequest failed: %v", err)
+	}
 
 	if v.OS.Version != "Indy" {
 		t.Error("Unexpected version", v.OS.Version)
@@ -77,6 +104,63 @@ func TestOmahaRequestUpdateCheck(t *testing.T) {
 
 	if v.Apps[0].Events[0].Result != EventResultSuccessReboot {
 		t.Error("Expected EventResultSuccessReboot")
+	}
+}
+
+func TestOmahaResponseWithUpdate(t *testing.T) {
+	parsed, err := ParseResponse("", strings.NewReader(sampleResponse))
+	if err != nil {
+		t.Fatalf("ParseResponse failed: %v", err)
+	}
+
+	expected := &Response{
+		XMLName:  xml.Name{Local: "response"},
+		Protocol: "3.0",
+		DayStart: DayStart{ElapsedSeconds: "49008"},
+		Apps: []*AppResponse{&AppResponse{
+			ID:     "{87efface-864d-49a5-9bb3-4b050a7c227a}",
+			Status: AppOK,
+			Ping:   &PingResponse{"ok"},
+			UpdateCheck: &UpdateResponse{
+				Status: UpdateOK,
+				URLs: []*URL{&URL{
+					CodeBase: "http://kam:8080/static/",
+				}},
+				Manifest: &Manifest{
+					Version: "9999.0.0",
+					Packages: []*Package{&Package{
+						SHA1:     "+LXvjiaPkeYDLHoNKlf9qbJwvnk=",
+						Name:     "update.gz",
+						Size:     67546213,
+						Required: true,
+					}},
+					Actions: []*Action{&Action{
+						Event:          "postinstall",
+						DisplayVersion: "9999.0.0",
+						SHA256:         "0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg=",
+						IsDeltaPayload: true,
+					}},
+				},
+			},
+		}},
+	}
+
+	if !reflect.DeepEqual(parsed, expected) {
+		t.Errorf("parsed != expected\n%s\n%s", parsed, expected)
+	}
+}
+
+func TestOmahaResponsAsRequest(t *testing.T) {
+	_, err := ParseRequest("", strings.NewReader(sampleResponse))
+	if err == nil {
+		t.Fatal("ParseRequest successfully parsed a response")
+	}
+}
+
+func TestOmahaRequestAsResponse(t *testing.T) {
+	_, err := ParseResponse("", strings.NewReader(sampleRequest))
+	if err == nil {
+		t.Fatal("ParseResponse successfully parsed a request")
 	}
 }
 

@@ -24,6 +24,7 @@ package omaha
 
 import (
 	"encoding/xml"
+	"io"
 )
 
 // Request sent by the Omaha client
@@ -54,6 +55,22 @@ func NewRequest() *Request {
 			// TODO(marineam): Version and ServicePack
 		},
 	}
+}
+
+// ParseRequest verifies and returns the parsed Request document.
+// The MIME Content-Type header may be provided to sanity check its
+// value; if blank it is assumed to be XML in UTF-8.
+func ParseRequest(contentType string, body io.Reader) (*Request, error) {
+	if err := checkContentType(contentType); err != nil {
+		return nil, err
+	}
+
+	r := &Request{}
+	if err := parseReqOrResp(body, r); err != nil {
+		return nil, err
+	}
+
+	return r, nil
 }
 
 func (r *Request) AddApp(id, version string) *AppRequest {
@@ -136,6 +153,22 @@ func NewResponse() *Response {
 		Server:   "go-omaha",
 		DayStart: DayStart{ElapsedSeconds: "0"},
 	}
+}
+
+// ParseResponse verifies and returns the parsed Response document.
+// The MIME Content-Type header may be provided to sanity check its
+// value; if blank it is assumed to be XML in UTF-8.
+func ParseResponse(contentType string, body io.Reader) (*Response, error) {
+	if err := checkContentType(contentType); err != nil {
+		return nil, err
+	}
+
+	r := &Response{}
+	if err := parseReqOrResp(body, r); err != nil {
+		return nil, err
+	}
+
+	return r, nil
 }
 
 type DayStart struct {
