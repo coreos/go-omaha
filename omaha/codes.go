@@ -150,8 +150,8 @@ const (
 	// Standard values
 	AppOK         AppStatus = "ok"
 	AppRestricted AppStatus = "restricted"
-	AppUnknownId  AppStatus = "error-unknownApplication"
-	AppInvalidId  AppStatus = "error-invalidAppId"
+	AppUnknownID  AppStatus = "error-unknownApplication"
+	AppInvalidID  AppStatus = "error-invalidAppId"
 
 	// Extra error values
 	AppInvalidVersion AppStatus = "error-invalidVersion"

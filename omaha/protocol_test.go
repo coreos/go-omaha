@@ -39,16 +39,16 @@ func TestOmahaRequestUpdateCheck(t *testing.T) {
 		t.Error("Unexpected version", v.OS.Version)
 	}
 
-	if v.Apps[0].Id != "{87efface-864d-49a5-9bb3-4b050a7c227a}" {
-		t.Error("Expected an App Id")
+	if v.Apps[0].ID != "{87efface-864d-49a5-9bb3-4b050a7c227a}" {
+		t.Error("Expected an App ID")
 	}
 
-	if v.Apps[0].BootId != "{7D52A1CC-7066-40F0-91C7-7CB6A871BFDE}" {
-		t.Error("Expected a Boot Id")
+	if v.Apps[0].BootID != "{7D52A1CC-7066-40F0-91C7-7CB6A871BFDE}" {
+		t.Error("Expected a Boot ID")
 	}
 
 	if v.Apps[0].MachineID != "{8BDE4C4D-9083-4D61-B41C-3253212C0C37}" {
-		t.Error("Expected a MachineId")
+		t.Error("Expected a Machine ID")
 	}
 
 	if v.Apps[0].OEM != "ec3000" {
@@ -88,13 +88,13 @@ func ExampleNewResponse() {
 	u.AddURL("http://localhost/updates")
 	m := u.AddManifest("9999.0.0")
 	k := m.AddPackage()
-	k.Sha1 = "+LXvjiaPkeYDLHoNKlf9qbJwvnk="
+	k.SHA1 = "+LXvjiaPkeYDLHoNKlf9qbJwvnk="
 	k.Name = "update.gz"
 	k.Size = 67546213
 	k.Required = true
 	a := m.AddAction("postinstall")
 	a.DisplayVersion = "9999.0.0"
-	a.Sha256 = "0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg="
+	a.SHA256 = "0VAlQW3RE99SGtSB5R4m08antAHO8XDoBMKDyxQT/Mg="
 	a.NeedsAdmin = false
 	a.IsDeltaPayload = true
 	a.DisablePayloadBackoff = true

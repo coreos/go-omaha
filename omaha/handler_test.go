@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	testAppId  = "{27BD862E-8AE8-4886-A055-F7F1A6460627}"
+	testAppID  = "{27BD862E-8AE8-4886-A055-F7F1A6460627}"
 	testAppVer = "1.0.0"
 )
 
@@ -34,9 +34,9 @@ var (
 
 func init() {
 	nilRequest = NewRequest()
-	nilRequest.AddApp(testAppId, testAppVer)
+	nilRequest.AddApp(testAppID, testAppVer)
 	nilResponse = NewResponse()
-	nilResponse.AddApp(testAppId, AppOK)
+	nilResponse.AddApp(testAppID, AppOK)
 }
 
 func compareXML(a, b interface{}) error {

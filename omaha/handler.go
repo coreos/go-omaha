@@ -87,13 +87,13 @@ func (o *OmahaHandler) ServeHTTP(w http.ResponseWriter, httpReq *http.Request) {
 func (o *OmahaHandler) serveApp(omahaResp *Response, httpReq *http.Request, omahaReq *Request, appReq *AppRequest) *AppResponse {
 	if err := o.CheckApp(omahaReq, appReq); err != nil {
 		if appStatus, ok := err.(AppStatus); ok {
-			return omahaResp.AddApp(appReq.Id, appStatus)
+			return omahaResp.AddApp(appReq.ID, appStatus)
 		}
 		log.Printf("omaha: CheckApp failed: %v", err)
-		return omahaResp.AddApp(appReq.Id, AppInternalError)
+		return omahaResp.AddApp(appReq.ID, AppInternalError)
 	}
 
-	appResp := omahaResp.AddApp(appReq.Id, AppOK)
+	appResp := omahaResp.AddApp(appReq.ID, AppOK)
 	if appReq.UpdateCheck != nil {
 		o.checkUpdate(appResp, httpReq, omahaReq, appReq)
 	}
