@@ -237,14 +237,6 @@ type OS struct {
 	Arch        string `xml:"arch,attr,omitempty"`
 }
 
-type Event struct {
-	Type            EventType   `xml:"eventtype,attr"`
-	Result          EventResult `xml:"eventresult,attr"`
-	PreviousVersion string      `xml:"previousversion,attr,omitempty"`
-	ErrorCode       string      `xml:"errorcode,attr,omitempty"`
-	Status          string      `xml:"status,attr,omitempty"`
-}
-
 type URL struct {
 	CodeBase string `xml:"codebase,attr"`
 }
