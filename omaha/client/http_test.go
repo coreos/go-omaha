@@ -15,6 +15,9 @@
 package client
 
 import (
+	"net"
+	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/coreos/go-omaha/omaha"
@@ -53,5 +56,111 @@ func TestHTTPClientDoPost(t *testing.T) {
 	}
 	if resp.Apps[0].Status != omaha.AppOK {
 		t.Fatalf("Bad apps status: %q", resp.Apps[0].Status)
+	}
+}
+
+type flakyHandler struct {
+	omaha.OmahaHandler
+	flakes int
+	reqs   int
+}
+
+func (f *flakyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	f.reqs++
+	if f.flakes > 0 {
+		f.flakes--
+		http.Error(w, "Flake!", http.StatusInternalServerError)
+		return
+	}
+	f.OmahaHandler.ServeHTTP(w, r)
+}
+
+type flakyServer struct {
+	l net.Listener
+	s *http.Server
+	h *flakyHandler
+}
+
+func newFlakyServer() (*flakyServer, error) {
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		return nil, err
+	}
+
+	f := &flakyServer{
+		l: l,
+		s: &http.Server{},
+		h: &flakyHandler{
+			OmahaHandler: omaha.OmahaHandler{
+				Updater: omaha.UpdaterStub{},
+			},
+			flakes: 1,
+		},
+	}
+	f.s.Handler = f.h
+
+	go f.s.Serve(l)
+	return f, nil
+}
+
+func TestHTTPClientError(t *testing.T) {
+	f, err := newFlakyServer()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.l.Close()
+
+	c := newHTTPClient()
+	url := "http://" + f.l.Addr().String()
+
+	_, err = c.doPost(url, []byte(sampleRequest))
+	switch err := err.(type) {
+	case nil:
+		t.Fatal("doPost succeeded but should have failed")
+	case *httpError:
+		if err.StatusCode != http.StatusInternalServerError {
+			t.Fatalf("Unexpected http error: %v", err)
+		}
+		if err.Timeout() {
+			t.Fatal("http 500 error reported as timeout")
+		}
+		if !err.Temporary() {
+			t.Fatal("http 500 error not reported as temporary")
+		}
+	default:
+		t.Fatalf("Unexpected error: %v", err)
+	}
+}
+
+func TestHTTPClientRetry(t *testing.T) {
+	f, err := newFlakyServer()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.l.Close()
+
+	req, err := omaha.ParseRequest("", strings.NewReader(sampleRequest))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	c := newHTTPClient()
+	url := "http://" + f.l.Addr().String()
+
+	resp, err := c.Omaha(url, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(resp.Apps) != 1 {
+		t.Fatalf("Should be 1 app, not %d", len(resp.Apps))
+	}
+
+	if resp.Apps[0].Status != omaha.AppOK {
+		t.Fatalf("Bad apps status: %q", resp.Apps[0].Status)
+	}
+
+	if f.h.reqs != 2 {
+		t.Fatalf("Server received %d requests, not 2", f.h.reqs)
 	}
 }

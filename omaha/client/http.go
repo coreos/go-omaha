@@ -51,7 +51,14 @@ func (hc *httpClient) doPost(url string, reqBody []byte) (*omaha.Response, error
 	defer resp.Body.Close()
 
 	contentType := resp.Header.Get("Content-Type")
-	return omaha.ParseResponse(contentType, resp.Body)
+	omahaResp, err := omaha.ParseResponse(contentType, resp.Body)
+
+	// Prefer reporting HTTP errors over XML parsing errors.
+	if resp.StatusCode != http.StatusOK {
+		err = &httpError{resp}
+	}
+
+	return omahaResp, err
 }
 
 // Omaha encodes and sends an omaha request, retrying on any transient errors.
