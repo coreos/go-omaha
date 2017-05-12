@@ -79,6 +79,15 @@ func (r *Request) AddApp(id, version string) *AppRequest {
 	return a
 }
 
+func (r *Request) GetApp(id string) *AppRequest {
+	for _, app := range r.Apps {
+		if app.ID == id {
+			return app
+		}
+	}
+	return nil
+}
+
 type AppRequest struct {
 	Ping        *PingRequest    `xml:"ping"`
 	UpdateCheck *UpdateRequest  `xml:"updatecheck"`
@@ -179,6 +188,15 @@ func (r *Response) AddApp(id string, status AppStatus) *AppResponse {
 	a := &AppResponse{ID: id, Status: status}
 	r.Apps = append(r.Apps, a)
 	return a
+}
+
+func (r *Response) GetApp(id string) *AppResponse {
+	for _, app := range r.Apps {
+		if app.ID == id {
+			return app
+		}
+	}
+	return nil
 }
 
 type AppResponse struct {
