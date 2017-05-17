@@ -34,7 +34,7 @@ type Request struct {
 	Apps          []*AppRequest `xml:"app"`
 	Protocol      string        `xml:"protocol,attr"`
 	InstallSource string        `xml:"installsource,attr,omitempty"`
-	IsMachine     string        `xml:"ismachine,attr,omitempty"`
+	IsMachine     int           `xml:"ismachine,attr,omitempty"`
 	RequestID     string        `xml:"requestid,attr,omitempty"`
 	SessionID     string        `xml:"sessionid,attr,omitempty"`
 	TestSource    string        `xml:"testsource,attr,omitempty"`
