@@ -21,10 +21,13 @@ import (
 	"net/url"
 
 	"github.com/satori/go.uuid"
+
+	"github.com/coreos/go-omaha/omaha"
 )
 
 // Client supports managing multiple apps using a single server.
 type Client struct {
+	apiClient     *httpClient
 	apiEndpoint   string
 	clientVersion string
 	userID        string
@@ -49,6 +52,7 @@ func New(serverURL, userID string) (*Client, error) {
 	}
 
 	c := &Client{
+		apiClient:     newHTTPClient(),
 		clientVersion: "go-omaha",
 		userID:        userID,
 		sessionID:     uuid.NewV4().String(),
@@ -151,4 +155,120 @@ func (ac *AppClient) SetTrack(track string) error {
 
 	ac.track = track
 	return nil
+}
+
+func (ac *AppClient) UpdateCheck() (*omaha.UpdateResponse, error) {
+	req := ac.newReq()
+	app := req.Apps[0]
+	app.AddPing()
+	app.AddUpdateCheck()
+
+	appResp, err := ac.doReq(ac.apiEndpoint, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if appResp.Ping == nil {
+		return nil, fmt.Errorf("omaha: ping status missing from response")
+	}
+
+	if appResp.Ping.Status != "ok" {
+		return nil, fmt.Errorf("omaha: ping status %s", appResp.Ping.Status)
+	}
+
+	if appResp.UpdateCheck == nil {
+		return nil, fmt.Errorf("omaha: update check missing from response")
+	}
+
+	if appResp.UpdateCheck.Status != omaha.UpdateOK {
+		return nil, appResp.UpdateCheck.Status
+	}
+
+	return appResp.UpdateCheck, nil
+}
+
+func (ac *AppClient) Ping() error {
+	req := ac.newReq()
+	app := req.Apps[0]
+	app.AddPing()
+
+	appResp, err := ac.doReq(ac.apiEndpoint, req)
+	if err != nil {
+		return err
+	}
+
+	if appResp.Ping == nil {
+		return fmt.Errorf("omaha: ping status missing from response")
+	}
+
+	if appResp.Ping.Status != "ok" {
+		return fmt.Errorf("omaha: ping status %s", appResp.Ping.Status)
+	}
+
+	return nil
+}
+
+func (ac *AppClient) Event(event *omaha.EventRequest) error {
+	req := ac.newReq()
+	app := req.Apps[0]
+	app.Events = append(app.Events, event)
+
+	appResp, err := ac.doReq(ac.apiEndpoint, req)
+	if err != nil {
+		return err
+	}
+
+	if len(appResp.Events) == 0 {
+		return fmt.Errorf("omaha: event status missing from response")
+	}
+
+	if appResp.Events[0].Status != "ok" {
+		return fmt.Errorf("omaha: event status %s", appResp.Events[0].Status)
+	}
+
+	return nil
+}
+
+func (ac *AppClient) newReq() *omaha.Request {
+	req := omaha.NewRequest()
+	req.Version = ac.clientVersion
+	req.UserID = ac.userID
+	req.SessionID = ac.sessionID
+	if ac.isMachine {
+		req.IsMachine = 1
+	}
+
+	app := req.AddApp(ac.appID, ac.version)
+	app.Track = ac.track
+
+	// MachineID and BootID are non-standard fields used by CoreOS'
+	// update_engine and Core Update. Copy their values from the
+	// standard UserID and SessionID. Eventually the non-standard
+	// fields should be deprecated.
+	app.MachineID = req.UserID
+	app.BootID = req.SessionID
+
+	return req
+}
+
+func (ac *AppClient) doReq(url string, req *omaha.Request) (*omaha.AppResponse, error) {
+	if len(req.Apps) != 1 {
+		panic(fmt.Errorf("unexpected number of apps: %d", len(req.Apps)))
+	}
+	appID := req.Apps[0].ID
+	resp, err := ac.apiClient.Omaha(url, req)
+	if err != nil {
+		return nil, err
+	}
+
+	appResp := resp.GetApp(appID)
+	if appResp == nil {
+		return nil, fmt.Errorf("omaha: app %s missing from response", appID)
+	}
+
+	if appResp.Status != omaha.AppOK {
+		return nil, appResp.Status
+	}
+
+	return appResp, nil
 }
