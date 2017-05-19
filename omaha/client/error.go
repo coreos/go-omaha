@@ -15,8 +15,24 @@
 package client
 
 import (
+	"encoding/xml"
+	"errors"
+	"io"
 	"net/http"
 )
+
+var (
+	bodySizeError  = errors.New("http response exceeded 1MB")
+	bodyEmptyError = errors.New("http response was empty")
+)
+
+// xml doesn't return the standard io.ErrUnexpectedEOF so check for both.
+func isUnexpectedEOF(err error) bool {
+	if xerr, ok := err.(*xml.SyntaxError); ok {
+		return xerr.Msg == "unexpected EOF"
+	}
+	return err == io.ErrUnexpectedEOF
+}
 
 // httpError implements error and net.Error for http responses.
 type httpError struct {

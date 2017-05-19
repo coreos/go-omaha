@@ -15,6 +15,7 @@
 package client
 
 import (
+	"bytes"
 	"net"
 	"net/http"
 	"strings"
@@ -162,5 +163,50 @@ func TestHTTPClientRetry(t *testing.T) {
 
 	if f.h.reqs != 2 {
 		t.Fatalf("Server received %d requests, not 2", f.h.reqs)
+	}
+}
+
+// should result in an unexected EOF
+func largeHandler1(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/xml; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?><response protocol="3.0">`))
+	w.Write(bytes.Repeat([]byte{' '}, 2*1024*1024))
+	w.Write([]byte(`</response>`))
+}
+
+// should result in an EOF
+func largeHandler2(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/xml; charset=utf-8")
+	w.Write(bytes.Repeat([]byte{' '}, 2*1024*1024))
+}
+
+func TestHTTPClientLarge(t *testing.T) {
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer l.Close()
+
+	s := &http.Server{
+		Handler: http.HandlerFunc(largeHandler1),
+	}
+	go s.Serve(l)
+
+	c := newHTTPClient()
+	url := "http://" + l.Addr().String()
+
+	_, err = c.doPost(url, []byte(sampleRequest))
+	if err != bodySizeError {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	// switch to failing before XML is read instead of half-way
+	// through (which results in a different error internally)
+	s.Handler = http.HandlerFunc(largeHandler2)
+
+	_, err = c.doPost(url, []byte(sampleRequest))
+	if err != bodyEmptyError {
+		t.Errorf("Unexpected error: %v", err)
 	}
 }

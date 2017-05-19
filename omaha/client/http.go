@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"time"
@@ -50,8 +51,17 @@ func (hc *httpClient) doPost(url string, reqBody []byte) (*omaha.Response, error
 	}
 	defer resp.Body.Close()
 
+	// A response over 1M in size is certainly bogus.
+	respBody := &io.LimitedReader{R: resp.Body, N: 1024 * 1024}
 	contentType := resp.Header.Get("Content-Type")
-	omahaResp, err := omaha.ParseResponse(contentType, resp.Body)
+	omahaResp, err := omaha.ParseResponse(contentType, respBody)
+
+	// Report a more sensible error if we truncated the body.
+	if isUnexpectedEOF(err) && respBody.N <= 0 {
+		err = bodySizeError
+	} else if err == io.EOF {
+		err = bodyEmptyError
+	}
 
 	// Prefer reporting HTTP errors over XML parsing errors.
 	if resp.StatusCode != http.StatusOK {
