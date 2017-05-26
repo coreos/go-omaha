@@ -34,7 +34,7 @@ type Request struct {
 	Apps          []*AppRequest `xml:"app"`
 	Protocol      string        `xml:"protocol,attr"`
 	InstallSource string        `xml:"installsource,attr,omitempty"`
-	IsMachine     string        `xml:"ismachine,attr,omitempty"`
+	IsMachine     int           `xml:"ismachine,attr,omitempty"`
 	RequestID     string        `xml:"requestid,attr,omitempty"`
 	SessionID     string        `xml:"sessionid,attr,omitempty"`
 	TestSource    string        `xml:"testsource,attr,omitempty"`
@@ -77,6 +77,15 @@ func (r *Request) AddApp(id, version string) *AppRequest {
 	a := &AppRequest{ID: id, Version: version}
 	r.Apps = append(r.Apps, a)
 	return a
+}
+
+func (r *Request) GetApp(id string) *AppRequest {
+	for _, app := range r.Apps {
+		if app.ID == id {
+			return app
+		}
+	}
+	return nil
 }
 
 type AppRequest struct {
@@ -179,6 +188,15 @@ func (r *Response) AddApp(id string, status AppStatus) *AppResponse {
 	a := &AppResponse{ID: id, Status: status}
 	r.Apps = append(r.Apps, a)
 	return a
+}
+
+func (r *Response) GetApp(id string) *AppResponse {
+	for _, app := range r.Apps {
+		if app.ID == id {
+			return app
+		}
+	}
+	return nil
 }
 
 type AppResponse struct {
