@@ -25,6 +25,10 @@ import (
 	"github.com/coreos/go-omaha/omaha"
 )
 
+const (
+	defaultClientVersion = "go-omaha"
+)
+
 // Client supports managing multiple apps using a single server.
 type Client struct {
 	apiClient     *httpClient
@@ -53,7 +57,7 @@ func New(serverURL, userID string) (*Client, error) {
 
 	c := &Client{
 		apiClient:     newHTTPClient(),
-		clientVersion: "go-omaha",
+		clientVersion: defaultClientVersion,
 		userID:        userID,
 		sessionID:     uuid.NewV4().String(),
 		apps:          make(map[string]*AppClient),
