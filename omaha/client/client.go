@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/satori/go.uuid"
 
@@ -27,6 +28,11 @@ import (
 
 const (
 	defaultClientVersion = "go-omaha"
+
+	// periodic update check and ping intervals
+	pingFuzz     = 10 * time.Minute
+	pingDelay    = 7 * time.Minute  // first check after 2-12 minutes
+	pingInterval = 45 * time.Minute // check in every 40-50 minutes
 )
 
 // Client supports managing multiple apps using a single server.
@@ -37,6 +43,7 @@ type Client struct {
 	userID        string
 	sessionID     string
 	isMachine     bool
+	sentPing      bool
 	apps          map[string]*AppClient
 }
 
@@ -95,6 +102,16 @@ func (c *Client) SetServerURL(serverURL string) error {
 // e.g. "update_engine-0.1.0".  Default is "go-omaha".
 func (c *Client) SetClientVersion(clientVersion string) {
 	c.clientVersion = clientVersion
+}
+
+// NextPing returns a timer channel that will fire when the next update
+// check or ping should be sent.
+func (c *Client) NextPing() <-chan time.Time {
+	d := pingDelay
+	if c.sentPing {
+		d = pingInterval
+	}
+	return FuzzyAfter(d, pingFuzz)
 }
 
 // AppClient gets the application client for the given application ID.
@@ -167,6 +184,8 @@ func (ac *AppClient) UpdateCheck() (*omaha.UpdateResponse, error) {
 	app.AddPing()
 	app.AddUpdateCheck()
 
+	ac.sentPing = true
+
 	appResp, err := ac.doReq(ac.apiEndpoint, req)
 	if err != nil {
 		return nil, err
@@ -195,6 +214,8 @@ func (ac *AppClient) Ping() error {
 	req := ac.newReq()
 	app := req.Apps[0]
 	app.AddPing()
+
+	ac.sentPing = true
 
 	appResp, err := ac.doReq(ac.apiEndpoint, req)
 	if err != nil {
