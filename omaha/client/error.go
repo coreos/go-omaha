@@ -18,13 +18,39 @@ import (
 	"encoding/xml"
 	"errors"
 	"io"
+	"net"
 	"net/http"
+	"time"
 )
 
 var (
 	bodySizeError  = errors.New("http response exceeded 1MB")
 	bodyEmptyError = errors.New("http response was empty")
+
+	// default parameters for expNetBackoff
+	backoffStart = time.Second
+	backoffTries = 7
 )
+
+// retries and exponentially backs off for temporary network errors
+func expNetBackoff(f func() error) error {
+	var (
+		backoff = backoffStart
+		tries   = backoffTries
+	)
+	for {
+		err := f()
+		tries--
+		if tries <= 0 {
+			return err
+		}
+		if neterr, ok := err.(net.Error); !ok || !neterr.Temporary() {
+			return err
+		}
+		FuzzySleep(backoff, backoff)
+		backoff *= 2
+	}
+}
 
 // xml doesn't return the standard io.ErrUnexpectedEOF so check for both.
 func isUnexpectedEOF(err error) bool {
