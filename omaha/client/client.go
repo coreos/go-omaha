@@ -53,6 +53,7 @@ type AppClient struct {
 	appID   string
 	track   string
 	version string
+	oem     string
 }
 
 // New creates an omaha client for updating one or more applications.
@@ -178,6 +179,12 @@ func (ac *AppClient) SetTrack(track string) error {
 	return nil
 }
 
+// SetOEM sets the application OEM name.
+// This is a update_engine/Core Update protocol extension.
+func (ac *AppClient) SetOEM(oem string) {
+	ac.oem = oem
+}
+
 func (ac *AppClient) UpdateCheck() (*omaha.UpdateResponse, error) {
 	req := ac.newReq()
 	app := req.Apps[0]
@@ -265,6 +272,7 @@ func (ac *AppClient) newReq() *omaha.Request {
 
 	app := req.AddApp(ac.appID, ac.version)
 	app.Track = ac.track
+	app.OEM = ac.oem
 
 	// MachineID and BootID are non-standard fields used by CoreOS'
 	// update_engine and Core Update. Copy their values from the
