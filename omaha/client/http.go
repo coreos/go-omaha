@@ -19,7 +19,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"time"
 
@@ -28,7 +27,6 @@ import (
 
 const (
 	defaultTimeout = 90 * time.Second
-	defaultTries   = 7
 )
 
 // httpClient extends the standard http.Client to support xml encoding
@@ -79,14 +77,10 @@ func (hc *httpClient) Omaha(url string, req *omaha.Request) (resp *omaha.Respons
 		return nil, fmt.Errorf("omaha: failed to encode request: %v", err)
 	}
 
-	for i := 0; i < defaultTries; i++ {
+	expNetBackoff(func() error {
 		resp, err = hc.doPost(url, buf.Bytes())
-		if neterr, ok := err.(net.Error); ok && neterr.Temporary() {
-			// TODO(marineam): add exponential backoff
-			continue
-		}
-		break
-	}
+		return err
+	})
 	if err != nil {
 		return nil, fmt.Errorf("omaha: request failed: %v", err)
 	}

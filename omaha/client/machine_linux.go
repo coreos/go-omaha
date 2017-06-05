@@ -60,7 +60,7 @@ func NewMachineClient(serverURL string) (*Client, error) {
 
 	c := &Client{
 		apiClient:     newHTTPClient(),
-		clientVersion: "go-omaha",
+		clientVersion: defaultClientVersion,
 		userID:        string(machineID),
 		sessionID:     string(bootID),
 		isMachine:     true,
