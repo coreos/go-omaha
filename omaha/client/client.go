@@ -155,6 +155,21 @@ func NewAppClient(serverURL, userID, appID, appVersion string) (*AppClient, erro
 	return ac, nil
 }
 
+func (ac *AppClient) SetAppID(appID string) error {
+	if appID == ac.appID {
+		return nil
+	}
+
+	if _, ok := ac.apps[appID]; ok {
+		return fmt.Errorf("omaha: duplicate app %q", appID)
+	}
+
+	delete(ac.apps, ac.appID)
+	ac.appID = appID
+	ac.apps[appID] = ac
+	return nil
+}
+
 // SetVersion changes the application version.
 func (ac *AppClient) SetVersion(version string) error {
 	if version == "" {
