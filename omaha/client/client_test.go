@@ -167,7 +167,7 @@ func TestClientEvent(t *testing.T) {
 		Type:   omaha.EventTypeDownloadComplete,
 		Result: omaha.EventResultSuccess,
 	}
-	if err := ac.Event(event); err != nil {
+	if err := <-ac.Event(event); err != nil {
 		t.Fatal(err)
 	}
 

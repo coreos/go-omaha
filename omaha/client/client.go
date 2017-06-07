@@ -255,25 +255,37 @@ func (ac *AppClient) Ping() error {
 	return nil
 }
 
-func (ac *AppClient) Event(event *omaha.EventRequest) error {
+// Event asynchronously sends the given omaha event.
+// Reading the error channel is optional.
+func (ac *AppClient) Event(event *omaha.EventRequest) <-chan error {
+	errc := make(chan error, 1)
+	url := ac.apiEndpoint
 	req := ac.newReq()
 	app := req.Apps[0]
 	app.Events = append(app.Events, event)
 
-	appResp, err := ac.doReq(ac.apiEndpoint, req)
-	if err != nil {
-		return err
-	}
+	go func() {
+		appResp, err := ac.doReq(url, req)
+		if err != nil {
+			errc <- err
+			return
+		}
 
-	if len(appResp.Events) == 0 {
-		return fmt.Errorf("omaha: event status missing from response")
-	}
+		if len(appResp.Events) == 0 {
+			errc <- fmt.Errorf("omaha: event status missing from response")
+			return
+		}
 
-	if appResp.Events[0].Status != "ok" {
-		return fmt.Errorf("omaha: event status %s", appResp.Events[0].Status)
-	}
+		if appResp.Events[0].Status != "ok" {
+			errc <- fmt.Errorf("omaha: event status %s", appResp.Events[0].Status)
+			return
+		}
 
-	return nil
+		errc <- nil
+		return
+	}()
+
+	return errc
 }
 
 func (ac *AppClient) newReq() *omaha.Request {
@@ -299,6 +311,8 @@ func (ac *AppClient) newReq() *omaha.Request {
 	return req
 }
 
+// doReq posts an omaha request. It may be called in its own goroutine so
+// it should not touch any mutable data in AppClient, but apiClient is ok.
 func (ac *AppClient) doReq(url string, req *omaha.Request) (*omaha.AppResponse, error) {
 	if len(req.Apps) != 1 {
 		panic(fmt.Errorf("unexpected number of apps: %d", len(req.Apps)))
