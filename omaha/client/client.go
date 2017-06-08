@@ -209,11 +209,16 @@ func (ac *AppClient) UpdateCheck() (*omaha.UpdateResponse, error) {
 	ac.sentPing = true
 
 	appResp, err := ac.doReq(ac.apiEndpoint, req)
-	if err != nil {
+	if err, ok := err.(ErrorEvent); ok {
+		ac.Event(err.ErrorEvent())
+		return nil, err
+	} else if err != nil {
+		ac.Event(NewErrorEvent(ExitCodeOmahaRequestError))
 		return nil, err
 	}
 
 	if appResp.Ping == nil {
+		ac.Event(NewErrorEvent(ExitCodeOmahaResponseInvalid))
 		return nil, fmt.Errorf("omaha: ping status missing from response")
 	}
 
@@ -222,6 +227,7 @@ func (ac *AppClient) UpdateCheck() (*omaha.UpdateResponse, error) {
 	}
 
 	if appResp.UpdateCheck == nil {
+		ac.Event(NewErrorEvent(ExitCodeOmahaResponseInvalid))
 		return nil, fmt.Errorf("omaha: update check missing from response")
 	}
 
@@ -240,11 +246,16 @@ func (ac *AppClient) Ping() error {
 	ac.sentPing = true
 
 	appResp, err := ac.doReq(ac.apiEndpoint, req)
-	if err != nil {
+	if err, ok := err.(ErrorEvent); ok {
+		ac.Event(err.ErrorEvent())
+		return err
+	} else if err != nil {
+		ac.Event(NewErrorEvent(ExitCodeOmahaRequestError))
 		return err
 	}
 
 	if appResp.Ping == nil {
+		ac.Event(NewErrorEvent(ExitCodeOmahaResponseInvalid))
 		return fmt.Errorf("omaha: ping status missing from response")
 	}
 
@@ -325,7 +336,10 @@ func (ac *AppClient) doReq(url string, req *omaha.Request) (*omaha.AppResponse, 
 
 	appResp := resp.GetApp(appID)
 	if appResp == nil {
-		return nil, fmt.Errorf("omaha: app %s missing from response", appID)
+		return nil, &omahaError{
+			Err:  fmt.Errorf("app %s missing from response", appID),
+			Code: ExitCodeOmahaResponseInvalid,
+		}
 	}
 
 	if appResp.Status != omaha.AppOK {

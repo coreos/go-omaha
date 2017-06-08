@@ -45,7 +45,7 @@ func newHTTPClient() *httpClient {
 func (hc *httpClient) doPost(url string, reqBody []byte) (*omaha.Response, error) {
 	resp, err := hc.Post(url, "text/xml; charset=utf-8", bytes.NewReader(reqBody))
 	if err != nil {
-		return nil, err
+		return nil, &omahaError{err, ExitCodeOmahaRequestError}
 	}
 	defer resp.Body.Close()
 
@@ -59,6 +59,8 @@ func (hc *httpClient) doPost(url string, reqBody []byte) (*omaha.Response, error
 		err = bodySizeError
 	} else if err == io.EOF {
 		err = bodyEmptyError
+	} else if err != nil {
+		err = &omahaError{err, ExitCodeOmahaRequestXMLParseError}
 	}
 
 	// Prefer reporting HTTP errors over XML parsing errors.
@@ -81,9 +83,6 @@ func (hc *httpClient) Omaha(url string, req *omaha.Request) (resp *omaha.Respons
 		resp, err = hc.doPost(url, buf.Bytes())
 		return err
 	})
-	if err != nil {
-		return nil, fmt.Errorf("omaha: request failed: %v", err)
-	}
 
-	return resp, nil
+	return resp, err
 }
