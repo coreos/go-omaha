@@ -217,14 +217,15 @@ func (ac *AppClient) UpdateCheck() (*omaha.UpdateResponse, error) {
 		return nil, err
 	}
 
-	if appResp.Ping == nil {
+	// BUG: CoreUpdate does not send ping status in response.
+	/*if appResp.Ping == nil {
 		ac.Event(NewErrorEvent(ExitCodeOmahaResponseInvalid))
 		return nil, fmt.Errorf("omaha: ping status missing from response")
 	}
 
 	if appResp.Ping.Status != "ok" {
 		return nil, fmt.Errorf("omaha: ping status %s", appResp.Ping.Status)
-	}
+	}*/
 
 	if appResp.UpdateCheck == nil {
 		ac.Event(NewErrorEvent(ExitCodeOmahaResponseInvalid))
@@ -254,14 +255,16 @@ func (ac *AppClient) Ping() error {
 		return err
 	}
 
-	if appResp.Ping == nil {
+	// BUG: CoreUpdate does not send ping status in response.
+	_ = appResp
+	/*if appResp.Ping == nil {
 		ac.Event(NewErrorEvent(ExitCodeOmahaResponseInvalid))
 		return fmt.Errorf("omaha: ping status missing from response")
 	}
 
 	if appResp.Ping.Status != "ok" {
 		return fmt.Errorf("omaha: ping status %s", appResp.Ping.Status)
-	}
+	}*/
 
 	return nil
 }
@@ -282,7 +285,9 @@ func (ac *AppClient) Event(event *omaha.EventRequest) <-chan error {
 			return
 		}
 
-		if len(appResp.Events) == 0 {
+		// BUG: CoreUpdate does not send event status in response.
+		_ = appResp
+		/*if len(appResp.Events) == 0 {
 			errc <- fmt.Errorf("omaha: event status missing from response")
 			return
 		}
@@ -290,7 +295,7 @@ func (ac *AppClient) Event(event *omaha.EventRequest) <-chan error {
 		if appResp.Events[0].Status != "ok" {
 			errc <- fmt.Errorf("omaha: event status %s", appResp.Events[0].Status)
 			return
-		}
+		}*/
 
 		errc <- nil
 		return
