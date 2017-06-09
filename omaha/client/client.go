@@ -206,6 +206,11 @@ func (ac *AppClient) UpdateCheck() (*omaha.UpdateResponse, error) {
 	app.AddPing()
 	app.AddUpdateCheck()
 
+	// Tell CoreUpdate to consider us in its "Complete" state,
+	// otherwise it interprets ping as "Instance-Hold" which is
+	// nonsense when we are sending an update check!
+	app.Events = append(app.Events, EventComplete)
+
 	ac.sentPing = true
 
 	appResp, err := ac.doReq(ac.apiEndpoint, req)

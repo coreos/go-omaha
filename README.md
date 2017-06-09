@@ -14,7 +14,8 @@ These differences include:
  - No offline activity tracking.
    The protocol's ping mechanism allows for tracking application usage, reporting the number of days since the last ping and how many of those days saw active usage.
    CoreUpdate does not use this, instead assuming update clients are always online and checking in once every ~45-50 minutes.
-   Each check in should include a ping and optionally an update check.
+   Clients not actively updating should send only a ping, indicating CoreUpdate's "Instance-Hold" state.
+   Clients requesting an update should send a ping, update check, and an UpdateComplete:SuccessReboot event indicating CoreUpdate's "Complete" state.
 
  - Various protocol extensions/abuses.
    update_engine, likely due to earlier limitations of the protocol and Google's server implementation, uses a number of non-standard fields.
