@@ -201,7 +201,7 @@ func (ac *AppClient) SetOEM(oem string) {
 }
 
 func (ac *AppClient) UpdateCheck() (*omaha.UpdateResponse, error) {
-	req := ac.newReq()
+	req := ac.NewAppRequest()
 	app := req.Apps[0]
 	app.AddPing()
 	app.AddUpdateCheck()
@@ -213,12 +213,8 @@ func (ac *AppClient) UpdateCheck() (*omaha.UpdateResponse, error) {
 
 	ac.sentPing = true
 
-	appResp, err := ac.doReq(ac.apiEndpoint, req)
-	if err, ok := err.(ErrorEvent); ok {
-		ac.Event(err.ErrorEvent())
-		return nil, err
-	} else if err != nil {
-		ac.Event(NewErrorEvent(ExitCodeOmahaRequestError))
+	appResp, err := ac.SendAppRequest(req)
+	if err != nil {
 		return nil, err
 	}
 
@@ -245,18 +241,14 @@ func (ac *AppClient) UpdateCheck() (*omaha.UpdateResponse, error) {
 }
 
 func (ac *AppClient) Ping() error {
-	req := ac.newReq()
+	req := ac.NewAppRequest()
 	app := req.Apps[0]
 	app.AddPing()
 
 	ac.sentPing = true
 
-	appResp, err := ac.doReq(ac.apiEndpoint, req)
-	if err, ok := err.(ErrorEvent); ok {
-		ac.Event(err.ErrorEvent())
-		return err
-	} else if err != nil {
-		ac.Event(NewErrorEvent(ExitCodeOmahaRequestError))
+	appResp, err := ac.SendAppRequest(req)
+	if err != nil {
 		return err
 	}
 
@@ -279,7 +271,7 @@ func (ac *AppClient) Ping() error {
 func (ac *AppClient) Event(event *omaha.EventRequest) <-chan error {
 	errc := make(chan error, 1)
 	url := ac.apiEndpoint
-	req := ac.newReq()
+	req := ac.NewAppRequest()
 	app := req.Apps[0]
 	app.Events = append(app.Events, event)
 
@@ -309,7 +301,8 @@ func (ac *AppClient) Event(event *omaha.EventRequest) <-chan error {
 	return errc
 }
 
-func (ac *AppClient) newReq() *omaha.Request {
+// NewAppRequest creates a Request object containing one application.
+func (ac *AppClient) NewAppRequest() *omaha.Request {
 	req := omaha.NewRequest()
 	req.Version = ac.clientVersion
 	req.UserID = ac.userID
@@ -330,6 +323,21 @@ func (ac *AppClient) newReq() *omaha.Request {
 	app.BootID = req.SessionID
 
 	return req
+}
+
+// SendAppRequest sends a Request object and validates the response.
+// On failure an error event is automatically sent to the server.
+func (ac *AppClient) SendAppRequest(req *omaha.Request) (*omaha.AppResponse, error) {
+	resp, err := ac.doReq(ac.apiEndpoint, req)
+	if _, ok := err.(omaha.AppStatus); ok {
+		// No point to sending an error if we got a well-formed
+		// non-ok application status in the response.
+	} else if err, ok := err.(ErrorEvent); ok {
+		ac.Event(err.ErrorEvent())
+	} else if err != nil {
+		ac.Event(NewErrorEvent(ExitCodeOmahaRequestError))
+	}
+	return resp, err
 }
 
 // doReq posts an omaha request. It may be called in its own goroutine so
