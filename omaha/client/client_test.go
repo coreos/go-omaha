@@ -100,6 +100,15 @@ func TestClientNoUpdate(t *testing.T) {
 	if len(r.checks) != 1 {
 		t.Fatalf("expected 1 update check, not %d", len(r.checks))
 	}
+
+	if len(r.events) != 1 {
+		t.Fatalf("expected 1 event, not %d", len(r.events))
+	}
+
+	if r.events[0].Type != omaha.EventTypeUpdateComplete ||
+		r.events[0].Result != omaha.EventResultSuccessReboot {
+		t.Fatalf("expected %#v, not %#v", EventComplete, r.events[0])
+	}
 }
 
 func TestClientWithUpdate(t *testing.T) {
@@ -131,6 +140,15 @@ func TestClientWithUpdate(t *testing.T) {
 
 	if len(r.checks) != 1 {
 		t.Fatalf("expected 1 update check, not %d", len(r.checks))
+	}
+
+	if len(r.events) != 1 {
+		t.Fatalf("expected 1 event, not %d", len(r.events))
+	}
+
+	if r.events[0].Type != omaha.EventTypeUpdateComplete ||
+		r.events[0].Result != omaha.EventResultSuccessReboot {
+		t.Fatalf("expected %#v, not %#v", EventComplete, r.events[0])
 	}
 }
 
@@ -167,7 +185,7 @@ func TestClientEvent(t *testing.T) {
 		Type:   omaha.EventTypeDownloadComplete,
 		Result: omaha.EventResultSuccess,
 	}
-	if err := ac.Event(event); err != nil {
+	if err := <-ac.Event(event); err != nil {
 		t.Fatal(err)
 	}
 

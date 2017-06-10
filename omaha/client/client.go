@@ -53,6 +53,7 @@ type AppClient struct {
 	appID   string
 	track   string
 	version string
+	oem     string
 }
 
 // New creates an omaha client for updating one or more applications.
@@ -154,6 +155,21 @@ func NewAppClient(serverURL, userID, appID, appVersion string) (*AppClient, erro
 	return ac, nil
 }
 
+func (ac *AppClient) SetAppID(appID string) error {
+	if appID == ac.appID {
+		return nil
+	}
+
+	if _, ok := ac.apps[appID]; ok {
+		return fmt.Errorf("omaha: duplicate app %q", appID)
+	}
+
+	delete(ac.apps, ac.appID)
+	ac.appID = appID
+	ac.apps[appID] = ac
+	return nil
+}
+
 // SetVersion changes the application version.
 func (ac *AppClient) SetVersion(version string) error {
 	if version == "" {
@@ -178,28 +194,42 @@ func (ac *AppClient) SetTrack(track string) error {
 	return nil
 }
 
+// SetOEM sets the application OEM name.
+// This is a update_engine/Core Update protocol extension.
+func (ac *AppClient) SetOEM(oem string) {
+	ac.oem = oem
+}
+
 func (ac *AppClient) UpdateCheck() (*omaha.UpdateResponse, error) {
-	req := ac.newReq()
+	req := ac.NewAppRequest()
 	app := req.Apps[0]
 	app.AddPing()
 	app.AddUpdateCheck()
 
+	// Tell CoreUpdate to consider us in its "Complete" state,
+	// otherwise it interprets ping as "Instance-Hold" which is
+	// nonsense when we are sending an update check!
+	app.Events = append(app.Events, EventComplete)
+
 	ac.sentPing = true
 
-	appResp, err := ac.doReq(ac.apiEndpoint, req)
+	appResp, err := ac.SendAppRequest(req)
 	if err != nil {
 		return nil, err
 	}
 
-	if appResp.Ping == nil {
+	// BUG: CoreUpdate does not send ping status in response.
+	/*if appResp.Ping == nil {
+		ac.Event(NewErrorEvent(ExitCodeOmahaResponseInvalid))
 		return nil, fmt.Errorf("omaha: ping status missing from response")
 	}
 
 	if appResp.Ping.Status != "ok" {
 		return nil, fmt.Errorf("omaha: ping status %s", appResp.Ping.Status)
-	}
+	}*/
 
 	if appResp.UpdateCheck == nil {
+		ac.Event(NewErrorEvent(ExitCodeOmahaResponseInvalid))
 		return nil, fmt.Errorf("omaha: update check missing from response")
 	}
 
@@ -211,50 +241,68 @@ func (ac *AppClient) UpdateCheck() (*omaha.UpdateResponse, error) {
 }
 
 func (ac *AppClient) Ping() error {
-	req := ac.newReq()
+	req := ac.NewAppRequest()
 	app := req.Apps[0]
 	app.AddPing()
 
 	ac.sentPing = true
 
-	appResp, err := ac.doReq(ac.apiEndpoint, req)
+	appResp, err := ac.SendAppRequest(req)
 	if err != nil {
 		return err
 	}
 
-	if appResp.Ping == nil {
+	// BUG: CoreUpdate does not send ping status in response.
+	_ = appResp
+	/*if appResp.Ping == nil {
+		ac.Event(NewErrorEvent(ExitCodeOmahaResponseInvalid))
 		return fmt.Errorf("omaha: ping status missing from response")
 	}
 
 	if appResp.Ping.Status != "ok" {
 		return fmt.Errorf("omaha: ping status %s", appResp.Ping.Status)
-	}
+	}*/
 
 	return nil
 }
 
-func (ac *AppClient) Event(event *omaha.EventRequest) error {
-	req := ac.newReq()
+// Event asynchronously sends the given omaha event.
+// Reading the error channel is optional.
+func (ac *AppClient) Event(event *omaha.EventRequest) <-chan error {
+	errc := make(chan error, 1)
+	url := ac.apiEndpoint
+	req := ac.NewAppRequest()
 	app := req.Apps[0]
 	app.Events = append(app.Events, event)
 
-	appResp, err := ac.doReq(ac.apiEndpoint, req)
-	if err != nil {
-		return err
-	}
+	go func() {
+		appResp, err := ac.doReq(url, req)
+		if err != nil {
+			errc <- err
+			return
+		}
 
-	if len(appResp.Events) == 0 {
-		return fmt.Errorf("omaha: event status missing from response")
-	}
+		// BUG: CoreUpdate does not send event status in response.
+		_ = appResp
+		/*if len(appResp.Events) == 0 {
+			errc <- fmt.Errorf("omaha: event status missing from response")
+			return
+		}
 
-	if appResp.Events[0].Status != "ok" {
-		return fmt.Errorf("omaha: event status %s", appResp.Events[0].Status)
-	}
+		if appResp.Events[0].Status != "ok" {
+			errc <- fmt.Errorf("omaha: event status %s", appResp.Events[0].Status)
+			return
+		}*/
 
-	return nil
+		errc <- nil
+		return
+	}()
+
+	return errc
 }
 
-func (ac *AppClient) newReq() *omaha.Request {
+// NewAppRequest creates a Request object containing one application.
+func (ac *AppClient) NewAppRequest() *omaha.Request {
 	req := omaha.NewRequest()
 	req.Version = ac.clientVersion
 	req.UserID = ac.userID
@@ -265,6 +313,7 @@ func (ac *AppClient) newReq() *omaha.Request {
 
 	app := req.AddApp(ac.appID, ac.version)
 	app.Track = ac.track
+	app.OEM = ac.oem
 
 	// MachineID and BootID are non-standard fields used by CoreOS'
 	// update_engine and Core Update. Copy their values from the
@@ -276,6 +325,23 @@ func (ac *AppClient) newReq() *omaha.Request {
 	return req
 }
 
+// SendAppRequest sends a Request object and validates the response.
+// On failure an error event is automatically sent to the server.
+func (ac *AppClient) SendAppRequest(req *omaha.Request) (*omaha.AppResponse, error) {
+	resp, err := ac.doReq(ac.apiEndpoint, req)
+	if _, ok := err.(omaha.AppStatus); ok {
+		// No point to sending an error if we got a well-formed
+		// non-ok application status in the response.
+	} else if err, ok := err.(ErrorEvent); ok {
+		ac.Event(err.ErrorEvent())
+	} else if err != nil {
+		ac.Event(NewErrorEvent(ExitCodeOmahaRequestError))
+	}
+	return resp, err
+}
+
+// doReq posts an omaha request. It may be called in its own goroutine so
+// it should not touch any mutable data in AppClient, but apiClient is ok.
 func (ac *AppClient) doReq(url string, req *omaha.Request) (*omaha.AppResponse, error) {
 	if len(req.Apps) != 1 {
 		panic(fmt.Errorf("unexpected number of apps: %d", len(req.Apps)))
@@ -288,7 +354,10 @@ func (ac *AppClient) doReq(url string, req *omaha.Request) (*omaha.AppResponse, 
 
 	appResp := resp.GetApp(appID)
 	if appResp == nil {
-		return nil, fmt.Errorf("omaha: app %s missing from response", appID)
+		return nil, &omahaError{
+			Err:  fmt.Errorf("app %s missing from response", appID),
+			Code: ExitCodeOmahaResponseInvalid,
+		}
 	}
 
 	if appResp.Status != omaha.AppOK {

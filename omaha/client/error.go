@@ -21,11 +21,19 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/coreos/go-omaha/omaha"
 )
 
 var (
-	bodySizeError  = errors.New("http response exceeded 1MB")
-	bodyEmptyError = errors.New("http response was empty")
+	bodySizeError = &omahaError{
+		Err:  errors.New("http response exceeded 1MB"),
+		Code: ExitCodeOmahaResponseInvalid,
+	}
+	bodyEmptyError = &omahaError{
+		Err:  errors.New("http response was empty"),
+		Code: ExitCodeOmahaRequestEmptyResponseError,
+	}
 
 	// default parameters for expNetBackoff
 	backoffStart = time.Second
@@ -60,13 +68,35 @@ func isUnexpectedEOF(err error) bool {
 	return err == io.ErrUnexpectedEOF
 }
 
-// httpError implements error and net.Error for http responses.
+// omahaError implements error and ErrorEvent for omaha requests/responses.
+type omahaError struct {
+	Err  error
+	Code ExitCode
+}
+
+func (oe *omahaError) Error() string {
+	return "omaha: request failed: " + oe.Err.Error()
+}
+
+func (oe *omahaError) ErrorEvent() *omaha.EventRequest {
+	return NewErrorEvent(oe.Code)
+}
+
+// httpError implements error, net.Error, and ErrorEvent for http responses.
 type httpError struct {
 	*http.Response
 }
 
 func (he *httpError) Error() string {
 	return "http error: " + he.Status
+}
+
+func (he *httpError) ErrorEvent() *omaha.EventRequest {
+	code := ExitCodeOmahaRequestError
+	if he.StatusCode > 0 && he.StatusCode < 1000 {
+		code = ExitCodeOmahaRequestHTTPResponseBase + ExitCode(he.StatusCode)
+	}
+	return NewErrorEvent(code)
 }
 
 func (he *httpError) Timeout() bool {

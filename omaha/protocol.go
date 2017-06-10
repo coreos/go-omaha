@@ -142,7 +142,7 @@ type PingRequest struct {
 type EventRequest struct {
 	Type            EventType   `xml:"eventtype,attr"`
 	Result          EventResult `xml:"eventresult,attr"`
-	ErrorCode       string      `xml:"errorcode,attr,omitempty"`
+	ErrorCode       int         `xml:"errorcode,attr,omitempty"`
 	NextVersion     string      `xml:"nextversion,attr,omitempty"`
 	PreviousVersion string      `xml:"previousversion,attr,omitempty"`
 }
