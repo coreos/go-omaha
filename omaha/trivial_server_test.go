@@ -59,6 +59,7 @@ func TestTrivialServer(t *testing.T) {
 	if err := s.AddPackage(tmp.Name(), "update.gz"); err != nil {
 		t.Fatal(err)
 	}
+	s.SetVersion(testAppVer)
 	go s.Serve()
 
 	buf, err := mkUpdateReq()
@@ -78,6 +79,37 @@ func TestTrivialServer(t *testing.T) {
 
 	dec := xml.NewDecoder(res.Body)
 	resp := &Response{}
+	if err := dec.Decode(resp); err != nil {
+		t.Fatalf("failed to parse body: %v", err)
+	}
+
+	// Should get zero update because the version is already the latest.
+	if len(resp.Apps) != 1 ||
+		resp.Apps[0].UpdateCheck == nil ||
+		resp.Apps[0].UpdateCheck.Status != NoUpdate {
+		t.Fatalf("unexpected response: %#v", resp)
+	}
+
+	// Should get an update now.
+	s.SetVersion("999.999.999")
+
+	buf, err = mkUpdateReq()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	endpoint = fmt.Sprintf("http://%s/v1/update/", s.Addr())
+	res, err = http.Post(endpoint, "text/xml", buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		t.Fatalf("failed to post: %v", res.Status)
+	}
+
+	dec = xml.NewDecoder(res.Body)
+	resp = &Response{}
 	if err := dec.Decode(resp); err != nil {
 		t.Fatalf("failed to parse body: %v", err)
 	}
