@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"net/http"
 	"path"
+
+	"github.com/blang/semver"
 )
 
 const pkg_prefix = "/packages/"
@@ -32,7 +34,22 @@ func (tu *trivialUpdater) CheckUpdate(req *Request, app *AppRequest) (*Update, e
 	if len(tu.Manifest.Packages) == 0 {
 		return nil, NoUpdate
 	}
-	return &tu.Update, nil
+
+	v1, err := semver.Make(app.Version)
+	if err != nil {
+		return nil, err
+	}
+
+	v2, err := semver.Make(tu.Manifest.Version)
+	if err != nil {
+		return nil, err
+	}
+
+	if v1.LT(v2) {
+		return &tu.Update, nil
+	}
+
+	return nil, NoUpdate
 }
 
 // trivialHandler serves up a single file.
@@ -97,4 +114,9 @@ func (ts *TrivialServer) AddPackage(file, name string) error {
 
 	ts.Mux.Handle(pkg_prefix+name, &trivialHandler{file})
 	return nil
+}
+
+// SetVersion sets the manifest's version with the provided one.
+func (ts *TrivialServer) SetVersion(version string) {
+	ts.tu.Manifest.Version = version
 }
