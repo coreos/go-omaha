@@ -32,6 +32,10 @@ var (
 		Type:   omaha.EventTypeUpdateDownloadFinished,
 		Result: omaha.EventResultSuccess,
 	}
+	EventInstallStarted = &omaha.EventRequest{
+		Type:   omaha.EventTypeInstallStarted,
+		Result: omaha.EventResultSuccess,
+	}
 	EventInstalled = &omaha.EventRequest{
 		Type:   omaha.EventTypeUpdateComplete,
 		Result: omaha.EventResultSuccess,
