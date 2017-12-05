@@ -1,0 +1,13 @@
+hash: a0dc2989b3602eb009ca448d7c52c4503ce9a616b73cd0f7e4348d9e9336c041
+updated: 2017-11-30T12:55:15.176689511-08:00
+imports:
+- name: github.com/blang/semver
+  version: 2ee87856327ba09384cabd113bc6b5d174e9ec0f
+- name: github.com/satori/go.uuid
+  version: 879c5887cd475cd7864858769793b2ceb0d44feb
+testImports:
+- name: github.com/kylelemons/godebug
+  version: d65d576e9348f5982d7f6d83682b694e731a45c6
+  subpackages:
+  - diff
+  - pretty
